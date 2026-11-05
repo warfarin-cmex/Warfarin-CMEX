@@ -192,10 +192,23 @@
             <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" />
           </svg>
         </div>
-        <!-- Pill Tag -->
-        <button type="button" onclick="scrollToReference()" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/20 hover:bg-black/30 border border-white/20 text-xs font-medium text-white/95 transition">
-          <span class="w-3.5 h-3.5 rounded-full bg-white text-brand-600 flex items-center justify-center font-bold text-[9px]">•••</span>
-          <span>แนวทางการปรับขนาดยา</span>
+        <!-- shadcn Announcement Component (Themed Header Pill) -->
+        <button
+          type="button"
+          onclick="scrollToReference()"
+          class="inline-flex items-center max-w-full gap-2 rounded-full border border-white/25 bg-black/25 hover:bg-black/35 px-3 py-0.5 text-xs font-semibold text-white shadow-sm hover:shadow-md transition-all"
+        >
+          <span class="-ml-2.5 shrink-0 truncate rounded-full bg-white/90 text-brand-700 px-2.5 py-0.5 text-[11px] font-bold">
+            Guideline
+          </span>
+          <span class="flex items-center gap-1 truncate py-1">
+            <span>แนวทางการปรับขนาดยา</span>
+            <!-- lucide-react ArrowUpRightIcon -->
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="shrink-0 opacity-80">
+              <path d="M7 7h10v10" />
+              <path d="M7 17 17 7" />
+            </svg>
+          </span>
         </button>
       </div>
     </div>
@@ -209,8 +222,8 @@
       <section class="lg:col-span-6 space-y-4">
         <div class="bg-white rounded-3xl shadow-sm border border-red-100/80 p-5 sm:p-6">
           
-          <!-- Card Header -->
-          <div class="flex items-center justify-between mb-5">
+          <!-- Card Header with shadcn Announcement Badge -->
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-5">
             <div class="flex items-center gap-2.5">
               <span class="w-6 h-6 rounded-full bg-brand-600 text-white flex items-center justify-center shadow-sm">
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
@@ -219,7 +232,16 @@
               </span>
               <h2 class="text-lg sm:text-xl font-bold text-brand-700">ข้อมูลการรักษา</h2>
             </div>
-            <span class="text-xs sm:text-sm font-semibold text-brand-600">อย่าลืมประเมิน bleeding!</span>
+
+            <!-- shadcn Announcement (Themed Warning Pill) -->
+            <div class="inline-flex items-center max-w-full gap-2 rounded-full border border-rose-900/5 bg-rose-100 text-rose-700 px-3 py-0.5 text-xs font-medium shadow-sm transition-all hover:shadow-md">
+              <div class="-ml-2.5 shrink-0 truncate rounded-full bg-white/70 px-2.5 py-0.5 text-[11px] font-bold text-brand-700">
+                Alert
+              </div>
+              <div class="flex items-center gap-1 truncate py-0.5 font-semibold">
+                อย่าลืมประเมิน bleeding!
+              </div>
+            </div>
           </div>
 
           <!-- STEP 1: ภาวะเลือดออก -->
@@ -543,7 +565,18 @@
                 </svg>
               </div>
               <div>
-                <span class="inline-block text-xs font-extrabold uppercase tracking-wider bg-white/20 px-2.5 py-0.5 rounded-full mb-1">Critical Protocol</span>
+                <div class="inline-flex items-center max-w-full gap-2 rounded-full border border-white/20 bg-white/15 px-3 py-0.5 text-xs font-semibold text-white shadow-sm mb-1.5">
+                  <span class="-ml-2.5 shrink-0 truncate rounded-full bg-white text-brand-700 px-2.5 py-0.5 text-[10px] font-extrabold uppercase">
+                    STAT
+                  </span>
+                  <span class="flex items-center gap-1 truncate py-0.5 font-bold uppercase tracking-wider text-[11px]">
+                    <span>Critical Protocol</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="shrink-0 opacity-80">
+                      <path d="M7 7h10v10" />
+                      <path d="M7 17 17 7" />
+                    </svg>
+                  </span>
+                </div>
                 <h2 class="text-xl sm:text-2xl font-extrabold tracking-tight">EMERGENCY: MAJOR BLEEDING</h2>
               </div>
             </div>
@@ -579,16 +612,34 @@
           
           <!-- Recommendation Summary Card -->
           <div class="bg-white rounded-3xl shadow-sm border border-red-100/80 p-5 sm:p-6">
-            <div class="flex items-center justify-between gap-2 mb-4">
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
               <div class="flex items-center gap-2">
                 <svg class="w-6 h-6 text-brand-600" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
                 </svg>
                 <h2 class="text-lg sm:text-xl font-bold text-brand-700">คำแนะนำการปรับยา</h2>
               </div>
-              <span id="rec-badge" class="px-3 py-1 rounded-full text-xs sm:text-sm font-bold bg-amber-50 text-amber-700 border border-amber-200">
-                แนะนำให้ปรับขนาดยา
-              </span>
+
+              <!-- shadcn Announcement Component (Dynamic Status Badge) -->
+              <div
+                id="rec-badge"
+                class="inline-flex items-center max-w-full gap-2 rounded-full border border-foreground/5 bg-amber-100 text-amber-800 px-3 py-0.5 text-xs font-semibold shadow-sm transition-all hover:shadow-md"
+              >
+                <div
+                  id="rec-badge-tag"
+                  class="-ml-2.5 shrink-0 truncate rounded-full bg-white/65 px-2.5 py-0.5 text-xs font-bold"
+                >
+                  Adjust
+                </div>
+                <div class="flex items-center gap-1 truncate py-1">
+                  <span id="rec-badge-title">แนะนำให้ปรับขนาดยา</span>
+                  <!-- lucide-react ArrowUpRightIcon -->
+                  <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="shrink-0 opacity-70">
+                    <path d="M7 7h10v10" />
+                    <path d="M7 17 17 7" />
+                  </svg>
+                </div>
+              </div>
             </div>
 
             <!-- Target Weekly Dose Highlight Box -->
@@ -834,8 +885,9 @@
             pctChange: 0.15,
             minPct: 0.10,
             maxPct: 0.20,
+            badgeTag: 'Increase',
             badgeText: 'แนะนำให้ปรับเพิ่มขนาดยา',
-            badgeClass: 'bg-amber-50 text-amber-700 border border-amber-200',
+            badgeClass: 'bg-amber-100 text-amber-800 border-amber-900/5',
             clinicalText: 'เพิ่มขนาดยารวมต่อสัปดาห์ 10 - 20%',
             holdOnly: false
           };
@@ -844,8 +896,9 @@
             pctChange: 0.075,
             minPct: 0.05,
             maxPct: 0.10,
+            badgeTag: 'Increase',
             badgeText: 'แนะนำให้ปรับเพิ่มขนาดยา',
-            badgeClass: 'bg-amber-50 text-amber-700 border border-amber-200',
+            badgeClass: 'bg-amber-100 text-amber-800 border-amber-900/5',
             clinicalText: 'เพิ่มขนาดยารวมต่อสัปดาห์ 5 - 10%',
             holdOnly: false
           };
@@ -854,8 +907,9 @@
             pctChange: 0,
             minPct: 0,
             maxPct: 0,
-            badgeText: 'อยู่ในเกณฑ์เป้าหมาย (Target)',
-            badgeClass: 'bg-emerald-50 text-emerald-700 border border-emerald-200',
+            badgeTag: 'Target',
+            badgeText: 'อยู่ในเกณฑ์เป้าหมาย',
+            badgeClass: 'bg-emerald-100 text-emerald-700 border-emerald-900/5',
             clinicalText: 'คงขนาดยาเดิม (Target INR 2.0 - 3.0)',
             holdOnly: false
           };
@@ -864,8 +918,9 @@
             pctChange: -0.075,
             minPct: -0.10,
             maxPct: -0.05,
+            badgeTag: 'Decrease',
             badgeText: 'แนะนำให้ปรับลดขนาดยา',
-            badgeClass: 'bg-amber-50 text-amber-700 border border-amber-200',
+            badgeClass: 'bg-amber-100 text-amber-800 border-amber-900/5',
             clinicalText: 'ลดขนาดยา 5 - 10% หรือติดตามผลใกล้ชิด',
             holdOnly: false
           };
@@ -874,8 +929,9 @@
             pctChange: -0.10,
             minPct: -0.15,
             maxPct: -0.05,
+            badgeTag: 'Decrease',
             badgeText: 'แนะนำให้ปรับลดขนาดยา',
-            badgeClass: 'bg-amber-50 text-amber-700 border border-amber-200',
+            badgeClass: 'bg-amber-100 text-amber-800 border-amber-900/5',
             clinicalText: 'หยุดยา 1 วัน แล้วลดขนาดยา 10%',
             holdOnly: false
           };
@@ -884,8 +940,9 @@
             pctChange: -0.20,
             minPct: -0.25,
             maxPct: -0.15,
+            badgeTag: 'Decrease',
             badgeText: 'แนะนำให้ปรับลดขนาดยา',
-            badgeClass: 'bg-amber-50 text-amber-700 border border-amber-200',
+            badgeClass: 'bg-amber-100 text-amber-800 border-amber-900/5',
             clinicalText: 'หยุดยา 2 วัน แล้วเริ่มใหม่ลดขนาดลง 20% (พิจารณา Vit K1 1 - 2.5 mg หากเสี่ยงเลือดออก)',
             holdOnly: false
           };
@@ -894,8 +951,9 @@
             pctChange: -1,
             minPct: -1,
             maxPct: -1,
+            badgeTag: 'Critical',
             badgeText: 'หยุดยาชั่วคราว (INR ≥ 9.0)',
-            badgeClass: 'bg-red-100 text-brand-700 border border-red-200',
+            badgeClass: 'bg-red-100 text-brand-700 border-red-900/5',
             clinicalText: 'หยุดยา, ให้ Vit K1 2.5 - 5 mg oral (ติดตามค่า INR จนเข้าสู่ช่วงรักษา แล้วจึงเริ่มยาใหม่ที่ขนาดลดลง)',
             holdOnly: true
           };
@@ -907,8 +965,9 @@
             pctChange: 0.15,
             minPct: 0.10,
             maxPct: 0.20,
+            badgeTag: 'Increase',
             badgeText: 'แนะนำให้ปรับเพิ่มขนาดยา',
-            badgeClass: 'bg-amber-50 text-amber-700 border border-amber-200',
+            badgeClass: 'bg-amber-100 text-amber-800 border-amber-900/5',
             clinicalText: 'เพิ่มขนาดยารวมต่อสัปดาห์ 10 - 20%',
             holdOnly: false
           };
@@ -917,8 +976,9 @@
             pctChange: 0.075,
             minPct: 0.05,
             maxPct: 0.10,
+            badgeTag: 'Increase',
             badgeText: 'แนะนำให้ปรับเพิ่มขนาดยา',
-            badgeClass: 'bg-amber-50 text-amber-700 border border-amber-200',
+            badgeClass: 'bg-amber-100 text-amber-800 border-amber-900/5',
             clinicalText: 'เพิ่มขนาดยารวมต่อสัปดาห์ 5 - 10%',
             holdOnly: false
           };
@@ -927,8 +987,9 @@
             pctChange: 0,
             minPct: 0,
             maxPct: 0,
-            badgeText: 'อยู่ในเกณฑ์เป้าหมาย (Target)',
-            badgeClass: 'bg-emerald-50 text-emerald-700 border border-emerald-200',
+            badgeTag: 'Target',
+            badgeText: 'อยู่ในเกณฑ์เป้าหมาย',
+            badgeClass: 'bg-emerald-100 text-emerald-700 border-emerald-900/5',
             clinicalText: 'คงขนาดยาเดิม (Target INR 2.5 - 3.5)',
             holdOnly: false
           };
@@ -937,8 +998,9 @@
             pctChange: -0.075,
             minPct: -0.10,
             maxPct: -0.05,
+            badgeTag: 'Decrease',
             badgeText: 'แนะนำให้ปรับลดขนาดยา',
-            badgeClass: 'bg-amber-50 text-amber-700 border border-amber-200',
+            badgeClass: 'bg-amber-100 text-amber-800 border-amber-900/5',
             clinicalText: 'ลดขนาดยา 5 - 10% หรือติดตามผลใกล้ชิด',
             holdOnly: false
           };
@@ -947,8 +1009,9 @@
             pctChange: -0.10,
             minPct: -0.15,
             maxPct: -0.05,
+            badgeTag: 'Decrease',
             badgeText: 'แนะนำให้ปรับลดขนาดยา',
-            badgeClass: 'bg-amber-50 text-amber-700 border border-amber-200',
+            badgeClass: 'bg-amber-100 text-amber-800 border-amber-900/5',
             clinicalText: 'หยุดยา 1 วัน แล้วลดขนาดยา 10%',
             holdOnly: false
           };
@@ -957,8 +1020,9 @@
             pctChange: -0.20,
             minPct: -0.25,
             maxPct: -0.15,
+            badgeTag: 'Decrease',
             badgeText: 'แนะนำให้ปรับลดขนาดยา',
-            badgeClass: 'bg-amber-50 text-amber-700 border border-amber-200',
+            badgeClass: 'bg-amber-100 text-amber-800 border-amber-900/5',
             clinicalText: 'หยุดยา 2 วัน แล้วเริ่มใหม่ลดขนาดลง 20% (พิจารณา Vit K1 1 - 2.5 mg หากเสี่ยงเลือดออก)',
             holdOnly: false
           };
@@ -967,8 +1031,9 @@
             pctChange: -1,
             minPct: -1,
             maxPct: -1,
+            badgeTag: 'Critical',
             badgeText: 'หยุดยาชั่วคราว (INR ≥ 9.0)',
-            badgeClass: 'bg-red-100 text-brand-700 border border-red-200',
+            badgeClass: 'bg-red-100 text-brand-700 border-red-900/5',
             clinicalText: 'หยุดยา, ให้ Vit K1 2.5 - 5 mg oral (ติดตามค่า INR จนเข้าสู่ช่วงรักษา แล้วจึงเริ่มยาใหม่ที่ขนาดลดลง)',
             holdOnly: true
           };
@@ -1226,10 +1291,14 @@
       // Evaluate Clinical Guideline
       const guide = evaluateGuideline(state.targetINR, inrVal);
 
-      // Update Summary Card
+      // Update Summary Card with shadcn Announcement Badge
       const recBadge = document.getElementById('rec-badge');
-      recBadge.textContent = guide.badgeText;
-      recBadge.className = `px-3 py-1 rounded-full text-xs sm:text-sm font-bold ${guide.badgeClass}`;
+      const recBadgeTag = document.getElementById('rec-badge-tag');
+      const recBadgeTitle = document.getElementById('rec-badge-title');
+
+      if (recBadgeTag) recBadgeTag.textContent = guide.badgeTag;
+      if (recBadgeTitle) recBadgeTitle.textContent = guide.badgeText;
+      recBadge.className = `inline-flex items-center max-w-full gap-2 rounded-full border px-3 py-0.5 text-xs font-semibold shadow-sm transition-all hover:shadow-md ${guide.badgeClass}`;
 
       const newTargetEl = document.getElementById('new-target-dose');
       const newTargetUnitEl = document.getElementById('new-target-unit');
