@@ -1,4 +1,4 @@
-const CACHE_NAME = 'warfarin-cmex-v5';
+const CACHE_NAME = 'warfarin-cmex-v6';
 const ASSETS = [
   './',
   './index.html',
@@ -21,8 +21,15 @@ self.addEventListener('activate', event => {
   self.clients.claim();
 });
 
+// Network-First: ดึงไฟล์ล่าสุดเสมอ และสำรองไว้ใช้ตอนออฟไลน์เท่านั้น
 self.addEventListener('fetch', event => {
   event.respondWith(
-    caches.match(event.request).then(cached => cached || fetch(event.request))
+    fetch(event.request)
+      .then(response => {
+        const clone = response.clone();
+        caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+        return response;
+      })
+      .catch(() => caches.match(event.request))
   );
 });
