@@ -1,0 +1,1523 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#C81922" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Warfarin CMEX" />
+  <title>Warfarin CMEX - INR Adjustment & Weekly Schedule</title>
+  <link rel="manifest" href="manifest.json" />
+
+  <!-- Google Fonts: Sarabun & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Sarabun:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Sarabun', 'Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#FDF2F3',
+              100: '#FCE4E6',
+              200: '#F9C8CD',
+              500: '#DC2626',
+              600: '#C81922',
+              700: '#A8121A',
+              800: '#880E15',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    * {
+      -webkit-tap-highlight-color: transparent;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Sarabun', 'Inter', sans-serif;
+      background-color: #FAF3F3;
+      color: #1F2937;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+    }
+
+    /* Header Gradient & Decorative Circles */
+    .app-header {
+      background: linear-gradient(135deg, #D12229 0%, #B8141B 100%);
+      position: relative;
+      overflow: hidden;
+    }
+    .app-header::before {
+      content: '';
+      position: absolute;
+      top: -55px;
+      right: -35px;
+      width: 230px;
+      height: 230px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.08);
+      pointer-events: none;
+    }
+    .app-header::after {
+      content: '';
+      position: absolute;
+      bottom: -70px;
+      right: 40px;
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.06);
+      pointer-events: none;
+    }
+
+    /* Hide number input spinners */
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    input[type="number"] {
+      -moz-appearance: textfield;
+    }
+
+    /* Pill Graphics inside 7-day Schedule */
+    .pill-whole {
+      width: 34px;
+      height: 34px;
+      border-radius: 9999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 13px;
+      color: #FFFFFF;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
+      flex-shrink: 0;
+    }
+    .pill-half {
+      width: 20px;
+      height: 36px;
+      border-top-left-radius: 36px;
+      border-bottom-left-radius: 36px;
+      border-top-right-radius: 4px;
+      border-bottom-right-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 10.5px;
+      color: #FFFFFF;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
+      flex-shrink: 0;
+      padding-left: 1px;
+    }
+
+    /* Legend mini-icons */
+    .legend-whole {
+      width: 16px;
+      height: 16px;
+      border-radius: 9999px;
+      display: inline-block;
+      flex-shrink: 0;
+    }
+    .legend-half {
+      width: 9px;
+      height: 16px;
+      border-top-left-radius: 16px;
+      border-bottom-left-radius: 16px;
+      border-top-right-radius: 2px;
+      border-bottom-right-radius: 2px;
+      display: inline-block;
+      flex-shrink: 0;
+    }
+
+    /* Smooth transitions */
+    .step-disabled {
+      opacity: 0.35;
+      pointer-events: none;
+      user-select: none;
+      filter: grayscale(40%);
+      transition: all 0.25s ease;
+    }
+    .step-enabled {
+      opacity: 1;
+      transition: all 0.25s ease;
+    }
+
+    @keyframes fadeInSlide {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    .animate-fade-in {
+      animation: fadeInSlide 0.3s ease-out forwards;
+    }
+  </style>
+</head>
+<body class="pb-24 lg:pb-12">
+
+  <!-- Sticky Top App Header -->
+  <header class="app-header text-white sticky top-0 z-40 shadow-md">
+    <div class="max-w-5xl mx-auto px-5 pt-5 pb-4 flex items-start justify-between relative z-10">
+      <div>
+        <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight leading-none">Warfarin CMEX</h1>
+        <p class="text-white/90 text-sm sm:text-base font-medium mt-1.5 leading-snug">
+          INR adjustment and<br class="sm:hidden" /> weekly schedule
+        </p>
+        <div class="w-28 h-1.5 bg-white/25 rounded-full mt-3"></div>
+      </div>
+
+      <div class="flex flex-col items-end gap-2">
+        <!-- Blood Drop Circle Badge -->
+        <div class="w-14 h-14 rounded-full bg-white/15 border border-white/30 flex items-center justify-center shadow-inner">
+          <svg class="w-7 h-7 text-white fill-current" viewBox="0 0 24 24">
+            <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" />
+          </svg>
+        </div>
+        <!-- Pill Tag -->
+        <button type="button" onclick="scrollToReference()" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/20 hover:bg-black/30 border border-white/20 text-xs font-medium text-white/95 transition">
+          <span class="w-3.5 h-3.5 rounded-full bg-white text-brand-600 flex items-center justify-center font-bold text-[9px]">•••</span>
+          <span>แนวทางการปรับขนาดยา</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Container (Responsive: Single column on Mobile, 2 columns on Desktop/iPad Landscape) -->
+  <main class="max-w-5xl mx-auto px-4 pt-4">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+      <!-- LEFT COLUMN: INPUT FORM CARD -->
+      <section class="lg:col-span-6 space-y-4">
+        <div class="bg-white rounded-3xl shadow-sm border border-red-100/80 p-5 sm:p-6">
+          
+          <!-- Card Header -->
+          <div class="flex items-center justify-between mb-5">
+            <div class="flex items-center gap-2.5">
+              <span class="w-6 h-6 rounded-full bg-brand-600 text-white flex items-center justify-center shadow-sm">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+              </span>
+              <h2 class="text-lg sm:text-xl font-bold text-brand-700">ข้อมูลการรักษา</h2>
+            </div>
+            <span class="text-xs sm:text-sm font-semibold text-brand-600">อย่าลืมประเมิน bleeding!</span>
+          </div>
+
+          <!-- STEP 1: ภาวะเลือดออก -->
+          <div class="mb-5">
+            <label class="block text-sm font-semibold text-gray-600 mb-2.5">1. ภาวะเลือดออก</label>
+            <div class="grid grid-cols-2 bg-gray-100 p-1.5 rounded-2xl border border-gray-200/70 gap-1.5">
+              <button
+                type="button"
+                id="btn-bleed-minor"
+                onclick="setBleedingStatus('minor')"
+                class="py-2.5 px-3 rounded-xl text-sm sm:text-base font-bold transition-all bg-white text-gray-900 shadow-sm"
+              >
+                ไม่มี / เลือดออกเล็กน้อย
+              </button>
+              <button
+                type="button"
+                id="btn-bleed-major"
+                onclick="setBleedingStatus('major')"
+                class="py-2.5 px-3 rounded-xl text-sm sm:text-base font-medium transition-all text-gray-600 hover:text-gray-900"
+              >
+                มีเลือดออกรุนแรง (Major)
+              </button>
+            </div>
+          </div>
+
+          <!-- STEPS 2 TO 5 CONTAINER (Disabled when Major Bleeding is selected) -->
+          <div id="non-emergency-steps" class="step-enabled space-y-5">
+
+            <!-- STEP 2: เป้าหมาย INR -->
+            <div>
+              <label class="block text-sm font-semibold text-gray-600 mb-2.5">2. เป้าหมาย INR</label>
+              <div class="grid grid-cols-2 gap-3">
+                <!-- Target 2.0 - 3.0 -->
+                <button
+                  type="button"
+                  id="btn-target-standard"
+                  onclick="setTargetINR('2.0-3.0')"
+                  class="rounded-2xl p-4 text-center transition-all border-2 bg-brand-600 border-brand-600 text-white shadow-sm"
+                >
+                  <div class="text-xl sm:text-2xl font-extrabold tracking-tight">2.0 - 3.0</div>
+                  <div class="text-xs sm:text-sm font-medium mt-1 opacity-95">General / AF / DVT</div>
+                </button>
+
+                <!-- Target 2.5 - 3.5 -->
+                <button
+                  type="button"
+                  id="btn-target-mechanical"
+                  onclick="setTargetINR('2.5-3.5')"
+                  class="rounded-2xl p-4 text-center transition-all border-2 bg-[#F2F4FF] border-[#D5DCFA] text-[#283593] hover:border-[#9FA8DA]"
+                >
+                  <div class="text-xl sm:text-2xl font-extrabold tracking-tight">2.5 - 3.5</div>
+                  <div class="text-xs sm:text-sm font-medium mt-1 opacity-90">Mechanical Valves</div>
+                </button>
+              </div>
+            </div>
+
+            <!-- STEP 3: ขนาดยาที่มี -->
+            <div>
+              <div class="flex items-center justify-between mb-2.5">
+                <label class="block text-sm font-semibold text-gray-600">3. ขนาดยาที่มี</label>
+                <span class="text-xs text-gray-400">เลือกได้มากกว่า 1 ขนาด</span>
+              </div>
+              <div class="grid grid-cols-4 gap-2.5 sm:gap-3">
+                <!-- 2 mg (Orange) -->
+                <button
+                  type="button"
+                  id="pill-btn-2"
+                  onclick="togglePillSize(2)"
+                  class="relative rounded-2xl py-3 px-2 flex flex-col items-center justify-center border-2 transition-all bg-[#FFF3E8] border-[#E59856] shadow-sm"
+                >
+                  <span id="pill-check-2" class="absolute top-1.5 right-1.5 w-4 h-4 rounded-full bg-[#F27405] text-white flex items-center justify-center text-[10px] font-bold">✓</span>
+                  <div class="w-9 h-9 rounded-full bg-[#F27405] text-white font-extrabold text-base flex items-center justify-center shadow-sm">
+                    2
+                  </div>
+                  <span class="text-xs font-bold text-gray-600 mt-1.5">mg</span>
+                </button>
+
+                <!-- 3 mg (Blue) -->
+                <button
+                  type="button"
+                  id="pill-btn-3"
+                  onclick="togglePillSize(3)"
+                  class="relative rounded-2xl py-3 px-2 flex flex-col items-center justify-center border-2 transition-all bg-[#EBF3FF] border-[#3B76E0] shadow-sm"
+                >
+                  <span id="pill-check-3" class="absolute top-1.5 right-1.5 w-4 h-4 rounded-full bg-[#1E62D0] text-white flex items-center justify-center text-[10px] font-bold">✓</span>
+                  <div class="w-9 h-9 rounded-full bg-[#1E62D0] text-white font-extrabold text-base flex items-center justify-center shadow-sm">
+                    3
+                  </div>
+                  <span class="text-xs font-bold text-gray-600 mt-1.5">mg</span>
+                </button>
+
+                <!-- 4 mg (Yellow) -->
+                <button
+                  type="button"
+                  id="pill-btn-4"
+                  onclick="togglePillSize(4)"
+                  class="relative rounded-2xl py-3 px-2 flex flex-col items-center justify-center border-2 transition-all bg-[#FEFBE8] border-[#EFE6B8] opacity-65 hover:opacity-100"
+                >
+                  <span id="pill-check-4" class="hidden absolute top-1.5 right-1.5 w-4 h-4 rounded-full bg-[#D9A300] text-white items-center justify-center text-[10px] font-bold">✓</span>
+                  <div class="w-9 h-9 rounded-full bg-[#E0AC00] text-gray-900 font-extrabold text-base flex items-center justify-center shadow-sm">
+                    4
+                  </div>
+                  <span class="text-xs font-bold text-gray-600 mt-1.5">mg</span>
+                </button>
+
+                <!-- 5 mg (Pink) -->
+                <button
+                  type="button"
+                  id="pill-btn-5"
+                  onclick="togglePillSize(5)"
+                  class="relative rounded-2xl py-3 px-2 flex flex-col items-center justify-center border-2 transition-all bg-[#FDF0F6] border-[#F3C6DC] opacity-65 hover:opacity-100"
+                >
+                  <span id="pill-check-5" class="hidden absolute top-1.5 right-1.5 w-4 h-4 rounded-full bg-[#E03E8A] text-white items-center justify-center text-[10px] font-bold">✓</span>
+                  <div class="w-9 h-9 rounded-full bg-[#E03E8A] text-white font-extrabold text-base flex items-center justify-center shadow-sm">
+                    5
+                  </div>
+                  <span class="text-xs font-bold text-gray-600 mt-1.5">mg</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- STEP 4: ค่า INR ปัจจุบัน -->
+            <div>
+              <label for="input-inr" class="block text-sm font-semibold text-gray-600 mb-2">4. ค่า INR ปัจจุบัน</label>
+              <div class="relative">
+                <input
+                  type="number"
+                  id="input-inr"
+                  step="0.1"
+                  min="0.5"
+                  max="20"
+                  inputmode="decimal"
+                  placeholder="0.0"
+                  class="w-full bg-[#F8F9FA] border-2 border-gray-200 focus:border-brand-600 focus:bg-white rounded-2xl py-4 px-4 text-center text-3xl font-extrabold text-gray-800 placeholder-gray-400 outline-none transition"
+                />
+              </div>
+            </div>
+
+            <!-- STEP 5: ขนาดยารวมเดิม -->
+            <div>
+              <label for="input-weekly-dose" class="block text-sm font-semibold text-gray-600 mb-2">5. ขนาดยารวมเดิม</label>
+              <div class="relative flex items-center">
+                <input
+                  type="number"
+                  id="input-weekly-dose"
+                  step="0.5"
+                  min="0"
+                  max="150"
+                  inputmode="decimal"
+                  placeholder="00"
+                  class="w-full bg-[#F8F9FA] border-2 border-gray-200 focus:border-brand-600 focus:bg-white rounded-2xl py-4 pl-16 pr-24 text-center text-3xl font-extrabold text-gray-800 placeholder-gray-400 outline-none transition"
+                />
+                <span class="absolute right-5 text-sm sm:text-base font-bold text-gray-500 pointer-events-none">
+                  mg/week
+                </span>
+              </div>
+            </div>
+
+          </div>
+          <!-- End Steps 2-5 -->
+
+          <!-- Validation Alert Banner (Hidden by default) -->
+          <div id="validation-error" class="hidden mt-4 p-3.5 rounded-xl bg-red-50 border border-red-200 text-brand-700 text-sm font-semibold flex items-center gap-2">
+            <svg class="w-5 h-5 flex-shrink-0 text-brand-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M5.07 19h13.86c1.54 0 2.5-1.67 1.73-3L13.73 4c-.77-1.33-2.69-1.33-3.46 0L3.34 16c-.77 1.33.19 3 1.73 3z" />
+            </svg>
+            <span id="validation-error-text">กรุณากรอกค่า INR ปัจจุบัน และขนาดยารวมเดิม</span>
+          </div>
+
+        </div>
+
+        <!-- ACTION BUTTONS -->
+        <div class="grid grid-cols-12 gap-3">
+          <!-- Reset Button -->
+          <button
+            type="button"
+            onclick="resetApp()"
+            class="col-span-5 bg-white hover:bg-red-50 active:scale-[0.99] text-brand-700 border-2 border-brand-600/80 rounded-2xl py-3.5 px-4 font-bold text-base sm:text-lg flex items-center justify-center gap-2 shadow-sm transition"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 3v5h5" />
+            </svg>
+            <span>รีเซ็ต</span>
+          </button>
+
+          <!-- Calculate / Emergency Button -->
+          <button
+            type="button"
+            id="btn-calculate"
+            onclick="handleCalculate()"
+            class="col-span-7 bg-brand-600 hover:bg-brand-700 active:scale-[0.99] text-white rounded-2xl py-3.5 px-4 font-bold text-base sm:text-lg flex items-center justify-center gap-2 shadow-md transition"
+          >
+            <span id="calc-btn-icon" class="w-6 h-6 rounded-full bg-white text-brand-600 flex items-center justify-center font-extrabold text-sm leading-none">=</span>
+            <span id="calc-btn-text">ประมวลผลคำแนะนำ</span>
+          </button>
+        </div>
+
+        <!-- REFERENCE ACCORDION (Placed on Main Dashboard) -->
+        <div id="reference-card" class="bg-white rounded-3xl shadow-sm border border-red-100/80 overflow-hidden">
+          <button
+            type="button"
+            onclick="toggleReferenceAccordion()"
+            class="w-full p-5 flex items-center justify-between text-left hover:bg-red-50/30 transition"
+          >
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-lg bg-brand-50 text-brand-600 flex items-center justify-center">
+                <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
+                  <path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-1 9H9V9h10v2zm-4 4H9v-2h6v2zm4-8H9V5h10v2z"/>
+                </svg>
+              </div>
+              <span class="font-bold text-base sm:text-lg text-brand-700">ข้อมูลอ้างอิง: แนวทางการปรับขนาดยา</span>
+            </div>
+            <svg id="reference-chevron" class="w-5 h-5 text-brand-700 transition-transform duration-200" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+
+          <!-- Collapsible Content -->
+          <div id="reference-content" class="hidden px-5 pb-6 pt-1 border-t border-gray-100 space-y-6">
+            
+            <!-- Target INR 2.0 - 3.0 -->
+            <div>
+              <h3 class="text-base font-extrabold text-brand-700 mb-3">Target INR 2.0 - 3.0 (General / AF / DVT)</h3>
+              <div class="divide-y divide-gray-100 text-sm sm:text-base">
+                <div class="py-2.5">
+                  <div class="font-extrabold text-red-600">&lt; 1.5</div>
+                  <div class="text-gray-900 font-medium mt-0.5">เพิ่มขนาดยา 10-20%</div>
+                </div>
+                <div class="py-2.5">
+                  <div class="font-extrabold text-amber-500">1.5 - 1.9</div>
+                  <div class="text-gray-900 font-medium mt-0.5">เพิ่มขนาดยา 5-10%</div>
+                </div>
+                <div class="py-2.5">
+                  <div class="font-extrabold text-emerald-600">2.0 - 3.0</div>
+                  <div class="text-gray-900 font-medium mt-0.5">คงขนาดยาเดิม (Target)</div>
+                </div>
+                <div class="py-2.5">
+                  <div class="font-extrabold text-amber-500">3.1 - 3.9</div>
+                  <div class="text-gray-900 font-medium mt-0.5">ลดขนาดยา 5-10% หรือติดตามผลใกล้ชิด</div>
+                </div>
+                <div class="py-2.5">
+                  <div class="font-extrabold text-red-600">4.0 - 4.9</div>
+                  <div class="text-gray-900 font-medium mt-0.5">หยุดยา 1 วัน แล้วลดขนาดยา 10%</div>
+                </div>
+                <div class="py-2.5">
+                  <div class="font-extrabold text-red-600">5.0 - 8.9</div>
+                  <div class="text-gray-900 font-medium mt-0.5">หยุดยา 2 วัน แล้วเริ่มใหม่ลดขนาดลง 20% (พิจารณา Vit K1 1 - 2.5 mg oral หากมีปัจจัยเสี่ยงเลือดออก)</div>
+                </div>
+                <div class="py-2.5">
+                  <div class="font-extrabold text-red-700">≥ 9.0</div>
+                  <div class="text-gray-900 font-medium mt-0.5">หยุดยา, ให้ Vit K1 2.5 - 5 mg oral (ติดตามค่า INR จนเข้าสู่ช่วงรักษา แล้วจึงเริ่มยาใหม่ที่ขนาดลดลง)</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Target INR 2.5 - 3.5 -->
+            <div class="pt-3 border-t border-gray-200">
+              <h3 class="text-base font-extrabold text-[#283593] mb-3">Target INR 2.5 - 3.5 (Mechanical Valves)</h3>
+              <div class="divide-y divide-gray-100 text-sm sm:text-base">
+                <div class="py-2.5">
+                  <div class="font-extrabold text-red-600">&lt; 1.9</div>
+                  <div class="text-gray-900 font-medium mt-0.5">เพิ่มขนาดยา 10-20%</div>
+                </div>
+                <div class="py-2.5">
+                  <div class="font-extrabold text-amber-500">1.9 - 2.4</div>
+                  <div class="text-gray-900 font-medium mt-0.5">เพิ่มขนาดยา 5-10%</div>
+                </div>
+                <div class="py-2.5">
+                  <div class="font-extrabold text-emerald-600">2.5 - 3.5</div>
+                  <div class="text-gray-900 font-medium mt-0.5">คงขนาดยาเดิม (Target)</div>
+                </div>
+                <div class="py-2.5">
+                  <div class="font-extrabold text-amber-500">3.6 - 4.5</div>
+                  <div class="text-gray-900 font-medium mt-0.5">ลดขนาดยา 5-10% หรือติดตามผลใกล้ชิด</div>
+                </div>
+                <div class="py-2.5">
+                  <div class="font-extrabold text-red-600">4.6 - 5.9</div>
+                  <div class="text-gray-900 font-medium mt-0.5">หยุดยา 1 วัน แล้วลดขนาดยา 10%</div>
+                </div>
+                <div class="py-2.5">
+                  <div class="font-extrabold text-red-600">6.0 - 8.9</div>
+                  <div class="text-gray-900 font-medium mt-0.5">หยุดยา 2 วัน แล้วเริ่มใหม่ลดขนาดลง 20% (พิจารณา Vit K1 1 - 2.5 mg oral หากมีปัจจัยเสี่ยงเลือดออก)</div>
+                </div>
+                <div class="py-2.5">
+                  <div class="font-extrabold text-red-700">≥ 9.0</div>
+                  <div class="text-gray-900 font-medium mt-0.5">หยุดยา, ให้ Vit K1 2.5 - 5 mg oral (ติดตามค่า INR จนเข้าสู่ช่วงรักษา แล้วจึงเริ่มยาใหม่ที่ขนาดลดลง)</div>
+                </div>
+              </div>
+            </div>
+
+            <p class="text-xs text-gray-400 pt-2 border-t border-gray-100 leading-relaxed">
+              อ้างอิง: แนวทางการรักษาผู้ป่วยด้วยยาต้านการแข็งตัวของเลือดชนิดรับประทาน สมาคมแพทย์โรคหัวใจแห่งประเทศไทยฯ
+            </p>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- RIGHT COLUMN: OUTPUT / RESULTS SECTION -->
+      <section id="results-wrapper" class="lg:col-span-6 space-y-5">
+
+        <!-- Empty State (Shown on Desktop before calculation) -->
+        <div id="empty-results-placeholder" class="hidden lg:flex flex-col items-center justify-center bg-white/70 border-2 border-dashed border-red-200 rounded-3xl p-12 text-center text-gray-400">
+          <div class="w-16 h-16 rounded-full bg-red-50 text-brand-600 flex items-center justify-center mb-4">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+            </svg>
+          </div>
+          <p class="text-base font-bold text-gray-600">พร้อมประมวลผลตารางจัดยา</p>
+          <p class="text-sm text-gray-400 mt-1">กรอกค่า INR ปัจจุบัน และขนาดยารวมเดิมทางด้านซ้าย<br/>แล้วกดปุ่ม "ประมวลผลคำแนะนำ"</p>
+        </div>
+
+        <!-- 1. EMERGENCY MAJOR BLEEDING SCREEN (Hidden by default) -->
+        <div id="emergency-result-card" class="hidden animate-fade-in">
+          <div class="bg-gradient-to-br from-[#C81922] to-[#990F17] text-white rounded-3xl p-6 sm:p-7 shadow-xl border-2 border-red-300">
+            <div class="flex items-center gap-3 mb-4">
+              <div class="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center flex-shrink-0">
+                <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </div>
+              <div>
+                <span class="inline-block text-xs font-extrabold uppercase tracking-wider bg-white/20 px-2.5 py-0.5 rounded-full mb-1">Critical Protocol</span>
+                <h2 class="text-xl sm:text-2xl font-extrabold tracking-tight">EMERGENCY: MAJOR BLEEDING</h2>
+              </div>
+            </div>
+
+            <div class="bg-white text-gray-900 rounded-2xl p-5 shadow-inner space-y-3.5">
+              <p class="text-sm font-bold text-brand-700 uppercase tracking-wide border-b border-red-100 pb-2">
+                แนวทางการจัดการภาวะเลือดออกรุนแรง
+              </p>
+              <ul class="space-y-3 text-base sm:text-lg font-bold text-gray-800">
+                <li class="flex items-start gap-3">
+                  <span class="w-6 h-6 rounded-full bg-red-100 text-brand-600 flex items-center justify-center text-sm font-extrabold flex-shrink-0 mt-0.5">1</span>
+                  <span>หยุดยาวอร์ฟารินทันที</span>
+                </li>
+                <li class="flex items-start gap-3">
+                  <span class="w-6 h-6 rounded-full bg-red-100 text-brand-600 flex items-center justify-center text-sm font-extrabold flex-shrink-0 mt-0.5">2</span>
+                  <span>ให้ Vitamin K1 10 mg ทางหลอดเลือดดำช้าๆ</span>
+                </li>
+                <li class="flex items-start gap-3">
+                  <span class="w-6 h-6 rounded-full bg-red-100 text-brand-600 flex items-center justify-center text-sm font-extrabold flex-shrink-0 mt-0.5">3</span>
+                  <span>ให้ FFP (Fresh Frozen Plasma) หรือ PCC หรือ rVIIa</span>
+                </li>
+                <li class="flex items-start gap-3">
+                  <span class="w-6 h-6 rounded-full bg-red-100 text-brand-600 flex items-center justify-center text-sm font-extrabold flex-shrink-0 mt-0.5">4</span>
+                  <span>อาจให้ Vit K1 ซ้ำได้ทุก 12 ชั่วโมง</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. NORMAL CALCULATION RESULTS (Hidden by default) -->
+        <div id="calculation-results" class="hidden space-y-5 animate-fade-in">
+          
+          <!-- Recommendation Summary Card -->
+          <div class="bg-white rounded-3xl shadow-sm border border-red-100/80 p-5 sm:p-6">
+            <div class="flex items-center justify-between gap-2 mb-4">
+              <div class="flex items-center gap-2">
+                <svg class="w-6 h-6 text-brand-600" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                </svg>
+                <h2 class="text-lg sm:text-xl font-bold text-brand-700">คำแนะนำการปรับยา</h2>
+              </div>
+              <span id="rec-badge" class="px-3 py-1 rounded-full text-xs sm:text-sm font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                แนะนำให้ปรับขนาดยา
+              </span>
+            </div>
+
+            <!-- Target Weekly Dose Highlight Box -->
+            <div class="bg-[#FDF3F4] rounded-2xl py-5 px-4 text-center mb-4 border border-red-100/60">
+              <div class="text-sm font-semibold text-gray-500 mb-1">เป้าหมายใหม่ (คำนวณ)</div>
+              <div id="new-target-dose" class="text-4xl sm:text-5xl font-extrabold text-brand-600 tracking-tight">
+                8.0
+              </div>
+              <div id="new-target-unit" class="text-sm font-semibold text-gray-500 mt-1">mg/week</div>
+            </div>
+
+            <!-- Guideline Action Text -->
+            <p id="rec-clinical-text" class="text-lg sm:text-xl font-bold text-gray-900 leading-snug mb-3">
+              หยุดยา 2 วัน แล้วเริ่มใหม่ลดขนาดลง 20% (พิจารณา Vit K1 1 - 2.5 mg หากเสี่ยงเลือดออก)
+            </p>
+
+            <div class="flex flex-wrap items-center justify-between text-xs sm:text-sm text-gray-500 pt-2 border-t border-gray-100 gap-2">
+              <span id="rec-inr-used">INR ที่ใช้เลือกแนวทาง: 5.0</span>
+              <span id="rec-range-info" class="font-medium text-gray-400">ขนาดยาเดิม: 10 mg/wk</span>
+            </div>
+          </div>
+
+          <!-- Weekly Schedule Options Container -->
+          <div id="schedule-options-section" class="space-y-3.5">
+            <div class="flex items-center justify-between px-1">
+              <h3 class="text-lg sm:text-xl font-bold text-brand-700">ตัวเลือกการจัดยา</h3>
+              <span class="text-xs sm:text-sm font-medium text-gray-500">เลือก 1 option ที่เหมาะสม</span>
+            </div>
+
+            <!-- Dynamic 3 Option Cards Rendered Here -->
+            <div id="schedule-options-list" class="space-y-4"></div>
+          </div>
+
+        </div>
+
+      </section>
+
+    </div>
+  </main>
+
+  <!-- Selected Option Toast / Modal Summary -->
+  <div id="copy-toast" class="fixed bottom-20 left-1/2 -translate-x-1/2 z-50 hidden bg-gray-900/95 text-white px-4 py-2.5 rounded-full shadow-lg text-sm font-semibold items-center gap-2">
+    <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+    </svg>
+    <span id="copy-toast-text">คัดลอกตารางจัดยาแล้ว</span>
+  </div>
+
+  <!-- Bottom Navigation Bar (Mobile App Aesthetic matching screenshots) -->
+  <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 py-2 px-2 z-40 lg:hidden">
+    <div class="max-w-md mx-auto grid grid-cols-5 text-center">
+      <button type="button" onclick="showTabNotice('RENAL DOSE')" class="flex flex-col items-center justify-center gap-1 text-gray-400 hover:text-gray-600">
+        <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
+          <path d="M4.22 11.29l7.07-7.07a6 6 0 0 1 8.49 8.49l-7.07 7.07a6 6 0 0 1-8.49-8.49zm1.42 1.42a4 4 0 0 0 5.66 5.66l3.53-3.54-5.66-5.65-3.53 3.53z"/>
+        </svg>
+        <span class="text-[10px] font-bold tracking-tight">RENAL DOSE</span>
+      </button>
+
+      <button type="button" onclick="showTabNotice('PEDIATRIC')" class="flex flex-col items-center justify-center gap-1 text-gray-400 hover:text-gray-600">
+        <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
+          <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+        </svg>
+        <span class="text-[10px] font-bold tracking-tight">PEDIATRIC</span>
+      </button>
+
+      <button type="button" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="flex flex-col items-center justify-center gap-1 text-brand-600">
+        <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
+          <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" />
+        </svg>
+        <span class="text-[10px] font-extrabold tracking-tight">WARFARIN</span>
+      </button>
+
+      <button type="button" onclick="showTabNotice('INTERACTIONS')" class="flex flex-col items-center justify-center gap-1 text-gray-400 hover:text-gray-600">
+        <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
+          <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/>
+        </svg>
+        <span class="text-[10px] font-bold tracking-tight">INTERACTIONS</span>
+      </button>
+
+      <button type="button" onclick="showTabNotice('PREGNANCY')" class="flex flex-col items-center justify-center gap-1 text-gray-400 hover:text-gray-600">
+        <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
+          <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+        </svg>
+        <span class="text-[10px] font-bold tracking-tight">PREGNANCY</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- APPLICATION LOGIC -->
+  <script>
+    // --- STATE ---
+    const state = {
+      bleeding: 'minor',          // 'minor' | 'major'
+      targetINR: '2.0-3.0',       // '2.0-3.0' | '2.5-3.5'
+      selectedPills: [2, 3],      // Default selected: 2mg and 3mg (matches screenshot)
+      selectedOptionIndex: 0
+    };
+
+    // Pill Visual Styling Metadata (Matches Thai Warfarin Standard Colors & Screenshots)
+    const PILL_META = {
+      0: {
+        color: '#9CA3AF',
+        textColor: '#FFFFFF',
+        bgTint: '#F3F4F6',
+        borderTint: '#E5E7EB',
+        activeBorder: '#9CA3AF',
+        name: 'หยุดยา'
+      },
+      2: {
+        color: '#F27405',
+        textColor: '#FFFFFF',
+        bgTint: '#FFF3E8',
+        borderTint: '#F6CBA3',
+        activeBorder: '#E59856',
+        name: '2 mg'
+      },
+      3: {
+        color: '#1E62D0',
+        textColor: '#FFFFFF',
+        bgTint: '#EBF3FF',
+        borderTint: '#B9D3FA',
+        activeBorder: '#3B76E0',
+        name: '3 mg'
+      },
+      4: {
+        color: '#E0AC00',
+        textColor: '#1F2937',
+        bgTint: '#FEFBE8',
+        borderTint: '#F3E39C',
+        activeBorder: '#D9A300',
+        name: '4 mg'
+      },
+      5: {
+        color: '#E03E8A',
+        textColor: '#FFFFFF',
+        bgTint: '#FDF0F6',
+        borderTint: '#F5B8D5',
+        activeBorder: '#E03E8A',
+        name: '5 mg'
+      }
+    };
+
+    const DAY_LABELS = ['จ.', 'อ.', 'พ.', 'พฤ.', 'ศ.', 'ส.', 'อา.'];
+
+    // --- STEP 1: BLEEDING STATUS ---
+    function setBleedingStatus(status) {
+      state.bleeding = status;
+      const btnMinor = document.getElementById('btn-bleed-minor');
+      const btnMajor = document.getElementById('btn-bleed-major');
+      const stepsContainer = document.getElementById('non-emergency-steps');
+      const calcBtn = document.getElementById('btn-calculate');
+      const calcBtnIcon = document.getElementById('calc-btn-icon');
+      const calcBtnText = document.getElementById('calc-btn-text');
+      const validationError = document.getElementById('validation-error');
+
+      validationError.classList.add('hidden');
+
+      if (status === 'minor') {
+        btnMinor.className = 'py-2.5 px-3 rounded-xl text-sm sm:text-base font-bold transition-all bg-white text-gray-900 shadow-sm';
+        btnMajor.className = 'py-2.5 px-3 rounded-xl text-sm sm:text-base font-medium transition-all text-gray-600 hover:text-gray-900';
+        stepsContainer.classList.remove('step-disabled');
+        stepsContainer.classList.add('step-enabled');
+
+        calcBtn.className = 'col-span-7 bg-brand-600 hover:bg-brand-700 active:scale-[0.99] text-white rounded-2xl py-3.5 px-4 font-bold text-base sm:text-lg flex items-center justify-center gap-2 shadow-md transition';
+        calcBtnIcon.innerHTML = '=';
+        calcBtnText.textContent = 'ประมวลผลคำแนะนำ';
+
+        document.getElementById('emergency-result-card').classList.add('hidden');
+      } else {
+        btnMajor.className = 'py-2.5 px-3 rounded-xl text-sm sm:text-base font-bold transition-all bg-brand-600 text-white shadow-sm';
+        btnMinor.className = 'py-2.5 px-3 rounded-xl text-sm sm:text-base font-medium transition-all text-gray-600 hover:text-gray-900';
+        stepsContainer.classList.remove('step-enabled');
+        stepsContainer.classList.add('step-disabled');
+
+        calcBtn.className = 'col-span-7 bg-red-700 hover:bg-red-800 active:scale-[0.99] text-white rounded-2xl py-3.5 px-4 font-bold text-base sm:text-lg flex items-center justify-center gap-2 shadow-lg ring-2 ring-red-300 transition';
+        calcBtnIcon.innerHTML = '!';
+        calcBtnText.textContent = 'แสดงแนวทางฉุกเฉิน';
+
+        document.getElementById('calculation-results').classList.add('hidden');
+      }
+    }
+
+    // --- STEP 2: TARGET INR ---
+    function setTargetINR(target) {
+      state.targetINR = target;
+      const btnStd = document.getElementById('btn-target-standard');
+      const btnMech = document.getElementById('btn-target-mechanical');
+
+      if (target === '2.0-3.0') {
+        btnStd.className = 'rounded-2xl p-4 text-center transition-all border-2 bg-brand-600 border-brand-600 text-white shadow-sm';
+        btnMech.className = 'rounded-2xl p-4 text-center transition-all border-2 bg-[#F2F4FF] border-[#D5DCFA] text-[#283593] hover:border-[#9FA8DA]';
+      } else {
+        btnMech.className = 'rounded-2xl p-4 text-center transition-all border-2 bg-brand-600 border-brand-600 text-white shadow-sm';
+        btnStd.className = 'rounded-2xl p-4 text-center transition-all border-2 bg-[#F2F4FF] border-[#D5DCFA] text-[#283593] hover:border-[#9FA8DA]';
+      }
+    }
+
+    // --- STEP 3: AVAILABLE TABLET SIZES ---
+    function togglePillSize(size) {
+      const idx = state.selectedPills.indexOf(size);
+      if (idx > -1) {
+        // Prevent deselecting the last remaining pill size
+        if (state.selectedPills.length === 1) {
+          showToast('ต้องเลือกขนาดยาอย่างน้อย 1 ขนาด');
+          return;
+        }
+        state.selectedPills.splice(idx, 1);
+      } else {
+        state.selectedPills.push(size);
+        state.selectedPills.sort((a, b) => a - b);
+      }
+      renderPillButtons();
+    }
+
+    function renderPillButtons() {
+      [2, 3, 4, 5].forEach(size => {
+        const isSelected = state.selectedPills.includes(size);
+        const btn = document.getElementById(`pill-btn-${size}`);
+        const check = document.getElementById(`pill-check-${size}`);
+        const meta = PILL_META[size];
+
+        if (isSelected) {
+          btn.style.backgroundColor = meta.bgTint;
+          btn.style.borderColor = meta.activeBorder;
+          btn.className = 'relative rounded-2xl py-3 px-2 flex flex-col items-center justify-center border-2 transition-all shadow-sm scale-[1.02]';
+          check.classList.remove('hidden');
+          check.classList.add('flex');
+        } else {
+          btn.style.backgroundColor = meta.bgTint;
+          btn.style.borderColor = 'transparent';
+          btn.className = 'relative rounded-2xl py-3 px-2 flex flex-col items-center justify-center border-2 transition-all opacity-55 hover:opacity-90';
+          check.classList.add('hidden');
+          check.classList.remove('flex');
+        }
+      });
+    }
+
+    // --- CLINICAL GUIDELINE RULES ---
+    function evaluateGuideline(targetINR, inr) {
+      if (targetINR === '2.0-3.0') {
+        if (inr < 1.5) {
+          return {
+            pctChange: 0.15,
+            minPct: 0.10,
+            maxPct: 0.20,
+            badgeText: 'แนะนำให้ปรับเพิ่มขนาดยา',
+            badgeClass: 'bg-amber-50 text-amber-700 border border-amber-200',
+            clinicalText: 'เพิ่มขนาดยารวมต่อสัปดาห์ 10 - 20%',
+            holdOnly: false
+          };
+        } else if (inr <= 1.9) {
+          return {
+            pctChange: 0.075,
+            minPct: 0.05,
+            maxPct: 0.10,
+            badgeText: 'แนะนำให้ปรับเพิ่มขนาดยา',
+            badgeClass: 'bg-amber-50 text-amber-700 border border-amber-200',
+            clinicalText: 'เพิ่มขนาดยารวมต่อสัปดาห์ 5 - 10%',
+            holdOnly: false
+          };
+        } else if (inr <= 3.0) {
+          return {
+            pctChange: 0,
+            minPct: 0,
+            maxPct: 0,
+            badgeText: 'อยู่ในเกณฑ์เป้าหมาย (Target)',
+            badgeClass: 'bg-emerald-50 text-emerald-700 border border-emerald-200',
+            clinicalText: 'คงขนาดยาเดิม (Target INR 2.0 - 3.0)',
+            holdOnly: false
+          };
+        } else if (inr <= 3.9) {
+          return {
+            pctChange: -0.075,
+            minPct: -0.10,
+            maxPct: -0.05,
+            badgeText: 'แนะนำให้ปรับลดขนาดยา',
+            badgeClass: 'bg-amber-50 text-amber-700 border border-amber-200',
+            clinicalText: 'ลดขนาดยา 5 - 10% หรือติดตามผลใกล้ชิด',
+            holdOnly: false
+          };
+        } else if (inr <= 4.9) {
+          return {
+            pctChange: -0.10,
+            minPct: -0.15,
+            maxPct: -0.05,
+            badgeText: 'แนะนำให้ปรับลดขนาดยา',
+            badgeClass: 'bg-amber-50 text-amber-700 border border-amber-200',
+            clinicalText: 'หยุดยา 1 วัน แล้วลดขนาดยา 10%',
+            holdOnly: false
+          };
+        } else if (inr <= 8.9) {
+          return {
+            pctChange: -0.20,
+            minPct: -0.25,
+            maxPct: -0.15,
+            badgeText: 'แนะนำให้ปรับลดขนาดยา',
+            badgeClass: 'bg-amber-50 text-amber-700 border border-amber-200',
+            clinicalText: 'หยุดยา 2 วัน แล้วเริ่มใหม่ลดขนาดลง 20% (พิจารณา Vit K1 1 - 2.5 mg หากเสี่ยงเลือดออก)',
+            holdOnly: false
+          };
+        } else {
+          return {
+            pctChange: -1,
+            minPct: -1,
+            maxPct: -1,
+            badgeText: 'หยุดยาชั่วคราว (INR ≥ 9.0)',
+            badgeClass: 'bg-red-100 text-brand-700 border border-red-200',
+            clinicalText: 'หยุดยา, ให้ Vit K1 2.5 - 5 mg oral (ติดตามค่า INR จนเข้าสู่ช่วงรักษา แล้วจึงเริ่มยาใหม่ที่ขนาดลดลง)',
+            holdOnly: true
+          };
+        }
+      } else {
+        // Target INR 2.5 - 3.5 (Mechanical Valves)
+        if (inr < 1.9) {
+          return {
+            pctChange: 0.15,
+            minPct: 0.10,
+            maxPct: 0.20,
+            badgeText: 'แนะนำให้ปรับเพิ่มขนาดยา',
+            badgeClass: 'bg-amber-50 text-amber-700 border border-amber-200',
+            clinicalText: 'เพิ่มขนาดยารวมต่อสัปดาห์ 10 - 20%',
+            holdOnly: false
+          };
+        } else if (inr <= 2.4) {
+          return {
+            pctChange: 0.075,
+            minPct: 0.05,
+            maxPct: 0.10,
+            badgeText: 'แนะนำให้ปรับเพิ่มขนาดยา',
+            badgeClass: 'bg-amber-50 text-amber-700 border border-amber-200',
+            clinicalText: 'เพิ่มขนาดยารวมต่อสัปดาห์ 5 - 10%',
+            holdOnly: false
+          };
+        } else if (inr <= 3.5) {
+          return {
+            pctChange: 0,
+            minPct: 0,
+            maxPct: 0,
+            badgeText: 'อยู่ในเกณฑ์เป้าหมาย (Target)',
+            badgeClass: 'bg-emerald-50 text-emerald-700 border border-emerald-200',
+            clinicalText: 'คงขนาดยาเดิม (Target INR 2.5 - 3.5)',
+            holdOnly: false
+          };
+        } else if (inr <= 4.5) {
+          return {
+            pctChange: -0.075,
+            minPct: -0.10,
+            maxPct: -0.05,
+            badgeText: 'แนะนำให้ปรับลดขนาดยา',
+            badgeClass: 'bg-amber-50 text-amber-700 border border-amber-200',
+            clinicalText: 'ลดขนาดยา 5 - 10% หรือติดตามผลใกล้ชิด',
+            holdOnly: false
+          };
+        } else if (inr <= 5.9) {
+          return {
+            pctChange: -0.10,
+            minPct: -0.15,
+            maxPct: -0.05,
+            badgeText: 'แนะนำให้ปรับลดขนาดยา',
+            badgeClass: 'bg-amber-50 text-amber-700 border border-amber-200',
+            clinicalText: 'หยุดยา 1 วัน แล้วลดขนาดยา 10%',
+            holdOnly: false
+          };
+        } else if (inr <= 8.9) {
+          return {
+            pctChange: -0.20,
+            minPct: -0.25,
+            maxPct: -0.15,
+            badgeText: 'แนะนำให้ปรับลดขนาดยา',
+            badgeClass: 'bg-amber-50 text-amber-700 border border-amber-200',
+            clinicalText: 'หยุดยา 2 วัน แล้วเริ่มใหม่ลดขนาดลง 20% (พิจารณา Vit K1 1 - 2.5 mg หากเสี่ยงเลือดออก)',
+            holdOnly: false
+          };
+        } else {
+          return {
+            pctChange: -1,
+            minPct: -1,
+            maxPct: -1,
+            badgeText: 'หยุดยาชั่วคราว (INR ≥ 9.0)',
+            badgeClass: 'bg-red-100 text-brand-700 border border-red-200',
+            clinicalText: 'หยุดยา, ให้ Vit K1 2.5 - 5 mg oral (ติดตามค่า INR จนเข้าสู่ช่วงรักษา แล้วจึงเริ่มยาใหม่ที่ขนาดลดลง)',
+            holdOnly: true
+          };
+        }
+      }
+    }
+
+    // --- WEEKLY SCHEDULE GENERATOR (Produces Top 3 Practical Options) ---
+    function generateDailyDoseUnits(selectedPills, targetWeeklyDose) {
+      const units = [];
+      const avgDaily = targetWeeklyDose / 7;
+
+      // For each selected pill strength, generate half (0.5) and whole (1.0) units first
+      selectedPills.forEach(pill => {
+        // Half tablet (e.g., 2/2 mg = 1 mg, 3/2 mg = 1.5 mg)
+        units.push({
+          dose: pill / 2,
+          pill: pill,
+          count: 0.5,
+          isHalf: true,
+          legendText: `${pill}/2 mg`,
+          shortInside: '1/2',
+          simplicityPenalty: 1 // Half tablet slight penalty vs whole
+        });
+
+        // Whole tablet (e.g., 2 mg, 3 mg)
+        units.push({
+          dose: pill,
+          pill: pill,
+          count: 1,
+          isHalf: false,
+          legendText: `${pill} mg`,
+          shortInside: `${pill}`,
+          simplicityPenalty: 0
+        });
+
+        // If target weekly dose is higher, also allow 1.5x and 2x tablets of the same strength
+        if (avgDaily > pill * 0.85) {
+          units.push({
+            dose: pill * 1.5,
+            pill: pill,
+            count: 1.5,
+            isHalf: true,
+            legendText: `${pill} mg × 1.5`,
+            shortInside: `1½`,
+            simplicityPenalty: 4
+          });
+          units.push({
+            dose: pill * 2,
+            pill: pill,
+            count: 2,
+            isHalf: false,
+            legendText: `${pill} mg × 2`,
+            shortInside: `${pill}×2`,
+            simplicityPenalty: 3
+          });
+        }
+        if (avgDaily > pill * 1.8) {
+          units.push({
+            dose: pill * 3,
+            pill: pill,
+            count: 3,
+            isHalf: false,
+            legendText: `${pill} mg × 3`,
+            shortInside: `${pill}×3`,
+            simplicityPenalty: 5
+          });
+        }
+      });
+
+      // Allow 0 mg (skip day) if weekly dose is small
+      if (avgDaily < 2.0) {
+        units.push({
+          dose: 0,
+          pill: 0,
+          count: 0,
+          isHalf: false,
+          legendText: 'หยุดยา',
+          shortInside: '-',
+          simplicityPenalty: 6
+        });
+      }
+
+      return units;
+    }
+
+    function generateTop3Schedules(targetWeeklyDose, currentWeeklyDose, selectedPills) {
+      const units = generateDailyDoseUnits(selectedPills, targetWeeklyDose);
+
+      // Day split patterns matching the screenshots
+      const patterns = [
+        { n1: 7, n2: 0, title: 'ทุกวัน (จันทร์-อาทิตย์)', patternPenalty: 0 },
+        { n1: 6, n2: 1, title: 'จันทร์-เสาร์ / อาทิตย์', patternPenalty: 2 },
+        { n1: 5, n2: 2, title: 'จันทร์-ศุกร์ / เสาร์-อาทิตย์', patternPenalty: 3 },
+        { n1: 4, n2: 3, title: 'จันทร์-พฤหัส / ศุกร์-อาทิตย์', patternPenalty: 4 }
+      ];
+
+      const candidates = [];
+
+      // 1. Uniform 7-day schedules (n1 = 7, n2 = 0)
+      units.forEach(u1 => {
+        if (u1.dose <= 0) return;
+        const total = +(u1.dose * 7).toFixed(2);
+        const diff = Math.abs(total - targetWeeklyDose);
+        const score = diff * 10 + u1.simplicityPenalty;
+        candidates.push({
+          total,
+          diff,
+          score,
+          patternTitle: patterns[0].title,
+          n1: 7,
+          n2: 0,
+          u1,
+          u2: null
+        });
+      });
+
+      // 2. Two-tier schedules (6+1, 5+2, 4+3)
+      for (let pIdx = 1; pIdx < patterns.length; pIdx++) {
+        const pat = patterns[pIdx];
+        for (let i = 0; i < units.length; i++) {
+          for (let j = 0; j < units.length; j++) {
+            const u1 = units[i];
+            const u2 = units[j];
+
+            // Primary dose must not be 0
+            if (u1.dose <= 0) continue;
+            // Skip if both daily doses are equal (already covered by 7-day uniform)
+            if (Math.abs(u1.dose - u2.dose) < 0.01) continue;
+
+            const total = +(pat.n1 * u1.dose + pat.n2 * u2.dose).toFixed(2);
+            if (total <= 0) continue;
+
+            const diff = Math.abs(total - targetWeeklyDose);
+
+            // Prefer using same tablet strength when possible, or clean half/whole pairs
+            const differentPillColorPenalty = (u2.pill !== 0 && u1.pill !== u2.pill) ? 2.5 : 0;
+
+            // Slight preference for primary (Mon-...) being the smaller or standard base dose
+            const orderPenalty = (u1.dose > u2.dose && u2.dose > 0) ? 0.4 : 0;
+
+            const simplicity =
+              pat.patternPenalty +
+              u1.simplicityPenalty +
+              u2.simplicityPenalty +
+              differentPillColorPenalty +
+              orderPenalty;
+
+            candidates.push({
+              total,
+              diff,
+              score: diff * 12 + simplicity,
+              simplicity,
+              patternTitle: pat.title,
+              n1: pat.n1,
+              n2: pat.n2,
+              u1,
+              u2
+            });
+          }
+        }
+      }
+
+      // Group by distinct weekly dose total (picking the simplest regimen for each total)
+      const bestByTotal = new Map();
+      candidates.forEach(cand => {
+        const key = cand.total.toFixed(1);
+        if (!bestByTotal.has(key)) {
+          bestByTotal.set(key, cand);
+        } else {
+          const existing = bestByTotal.get(key);
+          if (cand.simplicity < existing.simplicity) {
+            bestByTotal.set(key, cand);
+          }
+        }
+      });
+
+      // Sort distinct weekly totals by closeness to targetWeeklyDose, then by simplicity
+      const distinctList = Array.from(bestByTotal.values()).sort((a, b) => {
+        if (Math.abs(a.diff - b.diff) > 0.01) {
+          return a.diff - b.diff;
+        }
+        // Tie-breaker: if one is lower and one is higher by the same amount (e.g. 7.5 vs 8.5 around 8.0),
+        // put the lower dose first (7.5 then 8.5) just like the screenshot!
+        if (Math.abs(a.total - b.total) > 0.01) {
+          return a.total - b.total;
+        }
+        return a.simplicity - b.simplicity;
+      });
+
+      const top3 = distinctList.slice(0, 3);
+
+      // Format for UI rendering
+      return top3.map((item, idx) => {
+        const pctFromOld = currentWeeklyDose > 0
+          ? (((item.total - currentWeeklyDose) / currentWeeklyDose) * 100)
+          : 0;
+
+        const days = [];
+        for (let d = 0; d < 7; d++) {
+          days.push(d < item.n1 ? item.u1 : item.u2);
+        }
+
+        return {
+          rank: idx + 1,
+          patternTitle: item.patternTitle,
+          totalWeekly: item.total,
+          pctFromOld,
+          u1: item.u1,
+          u2: item.u2,
+          days
+        };
+      });
+    }
+
+    // --- HANDLE CALCULATE / EMERGENCY ACTION ---
+    function handleCalculate() {
+      const validationError = document.getElementById('validation-error');
+      const validationErrorText = document.getElementById('validation-error-text');
+      const emptyPlaceholder = document.getElementById('empty-results-placeholder');
+
+      // Case 1: Major Bleeding -> Show Emergency Screen immediately
+      if (state.bleeding === 'major') {
+        validationError.classList.add('hidden');
+        if (emptyPlaceholder) emptyPlaceholder.classList.add('hidden');
+        document.getElementById('calculation-results').classList.add('hidden');
+        const emergCard = document.getElementById('emergency-result-card');
+        emergCard.classList.remove('hidden');
+        emergCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        return;
+      }
+
+      // Case 2: Normal / Minor Bleeding -> Validate INR & Current Weekly Dose
+      const inrVal = parseFloat(document.getElementById('input-inr').value);
+      const doseVal = parseFloat(document.getElementById('input-weekly-dose').value);
+
+      if (isNaN(inrVal) || inrVal <= 0) {
+        validationErrorText.textContent = 'กรุณากรอกค่า INR ปัจจุบันให้ถูกต้อง (เช่น 2.5 หรือ 5.0)';
+        validationError.classList.remove('hidden');
+        document.getElementById('input-inr').focus();
+        return;
+      }
+
+      if (isNaN(doseVal) || doseVal <= 0) {
+        validationErrorText.textContent = 'กรุณากรอกขนาดยารวมเดิม (mg/week) ให้ถูกต้อง';
+        validationError.classList.remove('hidden');
+        document.getElementById('input-weekly-dose').focus();
+        return;
+      }
+
+      validationError.classList.add('hidden');
+      if (emptyPlaceholder) emptyPlaceholder.classList.add('hidden');
+      document.getElementById('emergency-result-card').classList.add('hidden');
+
+      // Evaluate Clinical Guideline
+      const guide = evaluateGuideline(state.targetINR, inrVal);
+
+      // Update Summary Card
+      const recBadge = document.getElementById('rec-badge');
+      recBadge.textContent = guide.badgeText;
+      recBadge.className = `px-3 py-1 rounded-full text-xs sm:text-sm font-bold ${guide.badgeClass}`;
+
+      const newTargetEl = document.getElementById('new-target-dose');
+      const newTargetUnitEl = document.getElementById('new-target-unit');
+      const scheduleSection = document.getElementById('schedule-options-section');
+
+      document.getElementById('rec-clinical-text').textContent = guide.clinicalText;
+      document.getElementById('rec-inr-used').textContent = `INR ที่ใช้เลือกแนวทาง: ${inrVal.toFixed(1)}`;
+      document.getElementById('rec-range-info').textContent = `ขนาดยาเดิม: ${formatNumber(doseVal)} mg/wk`;
+
+      if (guide.holdOnly) {
+        newTargetEl.textContent = 'HOLD';
+        newTargetUnitEl.textContent = 'หยุดยาและติดตามค่า INR';
+        scheduleSection.classList.add('hidden');
+      } else {
+        const newTargetDose = +(doseVal * (1 + guide.pctChange)).toFixed(1);
+        newTargetEl.textContent = newTargetDose.toFixed(1);
+        newTargetUnitEl.textContent = 'mg/week';
+        scheduleSection.classList.remove('hidden');
+
+        // Generate 3 Schedule Options
+        const options = generateTop3Schedules(newTargetDose, doseVal, state.selectedPills);
+        renderScheduleOptions(options);
+      }
+
+      const resultsEl = document.getElementById('calculation-results');
+      resultsEl.classList.remove('hidden');
+
+      setTimeout(() => {
+        resultsEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 60);
+    }
+
+    // --- RENDER 3 SCHEDULE OPTION CARDS ---
+    function renderScheduleOptions(options) {
+      const container = document.getElementById('schedule-options-list');
+      container.innerHTML = '';
+
+      options.forEach((opt, idx) => {
+        const pctSign = opt.pctFromOld > 0 ? '+' : '';
+        const pctFormatted = `${pctSign}${opt.pctFromOld.toFixed(1)}%`;
+        const pctColorClass =
+          Math.abs(opt.pctFromOld) < 0.1
+            ? 'text-emerald-600'
+            : opt.pctFromOld < 0
+            ? 'text-amber-500'
+            : 'text-blue-600';
+
+        // Build 7-day grid HTML
+        const daysHtml = opt.days.map((dayUnit, dIdx) => {
+          const meta = PILL_META[dayUnit.pill] || PILL_META[0];
+          const pillGraphicHtml = renderPillGraphic(dayUnit, meta);
+
+          return `
+            <div class="flex flex-col items-center">
+              <span class="text-xs font-bold text-gray-500 mb-1.5">${DAY_LABELS[dIdx]}</span>
+              <div
+                class="w-full aspect-square rounded-2xl border flex items-center justify-center p-1 transition-transform"
+                style="background-color: ${meta.bgTint}; border-color: ${meta.borderTint};"
+              >
+                ${pillGraphicHtml}
+              </div>
+              <span class="text-[11px] sm:text-xs font-bold text-gray-600 mt-1.5 tracking-tight">
+                ${formatNumber(dayUnit.dose)} mg
+              </span>
+            </div>
+          `;
+        }).join('');
+
+        // Build bottom legend pills (หลัก / รอง)
+        const primaryMeta = PILL_META[opt.u1.pill];
+        const primaryLegendIcon = opt.u1.isHalf
+          ? `<span class="legend-half" style="background-color: ${primaryMeta.color};"></span>`
+          : `<span class="legend-whole" style="background-color: ${primaryMeta.color};"></span>`;
+
+        let secondaryLegendHtml = '';
+        if (opt.u2) {
+          const secMeta = PILL_META[opt.u2.pill] || PILL_META[0];
+          const secLegendIcon = opt.u2.isHalf
+            ? `<span class="legend-half" style="background-color: ${secMeta.color};"></span>`
+            : `<span class="legend-whole" style="background-color: ${secMeta.color};"></span>`;
+
+          secondaryLegendHtml = `
+            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-gray-100/90 text-xs sm:text-sm font-bold text-gray-700">
+              ${secLegendIcon}
+              <span>รอง: ${opt.u2.legendText}</span>
+            </div>
+          `;
+        }
+
+        const card = document.createElement('div');
+        card.className = `bg-white rounded-3xl p-5 shadow-sm border-2 transition cursor-pointer ${
+          idx === 0 ? 'border-brand-600/80 ring-2 ring-red-100' : 'border-red-100/80 hover:border-red-300'
+        }`;
+        card.onclick = () => selectOptionCard(idx, opt);
+        card.id = `option-card-${idx}`;
+
+        card.innerHTML = `
+          <!-- Top Header of Option Card -->
+          <div class="flex items-start justify-between gap-2 mb-4">
+            <div class="flex items-center gap-3">
+              <div class="w-9 h-9 rounded-full bg-brand-600 text-white font-extrabold text-base flex items-center justify-center flex-shrink-0 shadow-sm">
+                ${opt.rank}
+              </div>
+              <div>
+                <div class="text-xs font-semibold text-gray-400">รูปแบบการกิน</div>
+                <div class="text-base sm:text-lg font-extrabold text-gray-900 leading-snug">${opt.patternTitle}</div>
+              </div>
+            </div>
+            <div class="text-right flex-shrink-0">
+              <div class="text-xs font-extrabold ${pctColorClass}">จากเดิม ${pctFormatted}</div>
+              <div class="text-xl sm:text-2xl font-extrabold text-brand-600 leading-tight">
+                ${formatNumber(opt.totalWeekly)} mg/wk
+              </div>
+            </div>
+          </div>
+
+          <!-- 7-Day Visual Pill Grid -->
+          <div class="grid grid-cols-7 gap-1.5 sm:gap-2 mb-4">
+            ${daysHtml}
+          </div>
+
+          <!-- Bottom Legend & Copy Action -->
+          <div class="flex flex-wrap items-center justify-between gap-2 pt-1">
+            <div class="flex flex-wrap items-center gap-2">
+              <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-gray-100/90 text-xs sm:text-sm font-bold text-gray-700">
+                ${primaryLegendIcon}
+                <span>หลัก: ${opt.u1.legendText}</span>
+              </div>
+              ${secondaryLegendHtml}
+            </div>
+
+            <button
+              type="button"
+              onclick="event.stopPropagation(); copyScheduleSummary(${idx})"
+              class="text-xs font-bold text-brand-600 hover:text-brand-800 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-xl transition flex items-center gap-1"
+            >
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+              </svg>
+              <span>คัดลอกคำสั่งยา</span>
+            </button>
+          </div>
+        `;
+
+        container.appendChild(card);
+      });
+
+      // Save options on window for quick copy
+      window.__lastGeneratedOptions = options;
+    }
+
+    function renderPillGraphic(dayUnit, meta) {
+      if (dayUnit.dose === 0) {
+        return `<span class="text-xs font-bold text-gray-400">หยุด</span>`;
+      }
+      if (dayUnit.isHalf && dayUnit.count === 0.5) {
+        return `
+          <div class="pill-half" style="background-color: ${meta.color}; color: ${meta.textColor};">
+            1/2
+          </div>
+        `;
+      }
+      return `
+        <div class="pill-whole" style="background-color: ${meta.color}; color: ${meta.textColor};">
+          ${dayUnit.shortInside}
+        </div>
+      `;
+    }
+
+    function selectOptionCard(selectedIdx, opt) {
+      const options = window.__lastGeneratedOptions || [];
+      options.forEach((_, idx) => {
+        const el = document.getElementById(`option-card-${idx}`);
+        if (!el) return;
+        if (idx === selectedIdx) {
+          el.className = 'bg-white rounded-3xl p-5 shadow-sm border-2 transition cursor-pointer border-brand-600 ring-2 ring-red-100';
+        } else {
+          el.className = 'bg-white rounded-3xl p-5 shadow-sm border-2 transition cursor-pointer border-red-100/80 hover:border-red-300';
+        }
+      });
+    }
+
+    function copyScheduleSummary(idx) {
+      const options = window.__lastGeneratedOptions || [];
+      const opt = options[idx];
+      if (!opt) return;
+
+      const inrVal = document.getElementById('input-inr').value;
+      const clinicalText = document.getElementById('rec-clinical-text').textContent;
+      let scheduleLine = `• รูปแบบ (${opt.patternTitle}): ขนาดยารวม ${formatNumber(opt.totalWeekly)} mg/สัปดาห์`;
+      if (opt.u2) {
+        scheduleLine += `\n  - ขนาดยาหลัก: เม็ด ${opt.u1.pill} mg (${opt.u1.count === 0.5 ? 'ครึ่งเม็ด' : opt.u1.count + ' เม็ด'} = ${opt.u1.dose} mg/วัน)`;
+        scheduleLine += `\n  - ขนาดยารอง: ${opt.u2.dose === 0 ? 'หยุดยา' : `เม็ด ${opt.u2.pill} mg (${opt.u2.count === 0.5 ? 'ครึ่งเม็ด' : opt.u2.count + ' เม็ด'} = ${opt.u2.dose} mg/วัน)`}`;
+      } else {
+        scheduleLine += `\n  - กินทุกวัน: เม็ด ${opt.u1.pill} mg (${opt.u1.count === 0.5 ? 'ครึ่งเม็ด' : opt.u1.count + ' เม็ด'} = ${opt.u1.dose} mg/วัน)`;
+      }
+
+      const textToCopy = `Warfarin CMEX (Target INR ${state.targetINR})\nINR ปัจจุบัน: ${inrVal}\nคำแนะนำ: ${clinicalText}\n${scheduleLine}`;
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(textToCopy).then(() => {
+          showToast(`คัดลอกตัวเลือกที่ ${opt.rank} (${formatNumber(opt.totalWeekly)} mg/wk) แล้ว`);
+        });
+      } else {
+        showToast(`เลือกตัวเลือกที่ ${opt.rank} (${formatNumber(opt.totalWeekly)} mg/wk)`);
+      }
+    }
+
+    // --- RESET FORM ---
+    function resetApp() {
+      setBleedingStatus('minor');
+      setTargetINR('2.0-3.0');
+      state.selectedPills = [2, 3];
+      renderPillButtons();
+
+      document.getElementById('input-inr').value = '';
+      document.getElementById('input-weekly-dose').value = '';
+      document.getElementById('validation-error').classList.add('hidden');
+      document.getElementById('emergency-result-card').classList.add('hidden');
+      document.getElementById('calculation-results').classList.add('hidden');
+
+      const emptyPlaceholder = document.getElementById('empty-results-placeholder');
+      if (emptyPlaceholder) emptyPlaceholder.classList.remove('hidden');
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // --- ACCORDION TOGGLE ---
+    function toggleReferenceAccordion(forceOpen = false) {
+      const content = document.getElementById('reference-content');
+      const chevron = document.getElementById('reference-chevron');
+      const isHidden = content.classList.contains('hidden');
+
+      if (forceOpen || isHidden) {
+        content.classList.remove('hidden');
+        chevron.classList.add('rotate-180');
+      } else {
+        content.classList.add('hidden');
+        chevron.classList.remove('rotate-180');
+      }
+    }
+
+    function scrollToReference() {
+      toggleReferenceAccordion(true);
+      document.getElementById('reference-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    // --- HELPERS ---
+    function formatNumber(num) {
+      return Number.isInteger(num) ? num.toString() : num.toFixed(1).replace(/\.0$/, '');
+    }
+
+    let toastTimer = null;
+    function showToast(message) {
+      const toast = document.getElementById('copy-toast');
+      const toastText = document.getElementById('copy-toast-text');
+      toastText.textContent = message;
+      toast.classList.remove('hidden');
+      toast.classList.add('flex');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        toast.classList.add('hidden');
+        toast.classList.remove('flex');
+      }, 2400);
+    }
+
+    function showTabNotice(tabName) {
+      showToast(`โมดูล ${tabName} สามารถเชื่อมต่อเพิ่มได้ในอนาคต`);
+    }
+
+    // Allow pressing Enter inside inputs to trigger calculation
+    document.addEventListener('DOMContentLoaded', () => {
+      renderPillButtons();
+      ['input-inr', 'input-weekly-dose'].forEach(id => {
+        const el = document.getElementById(id);
+        el.addEventListener('keydown', e => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            handleCalculate();
+          }
+        });
+      });
+
+      // Register Service Worker for 24/7 Offline PWA capability
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js').catch(() => {});
+      }
+    });
+  </script>
+</body>
+</html>
