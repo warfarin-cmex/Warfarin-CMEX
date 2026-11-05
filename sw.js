@@ -1,4 +1,4 @@
-const CACHE_NAME = 'warfarin-cmex-v2';
+const CACHE_NAME = 'warfarin-cmex-v5';
 const ASSETS = [
   './',
   './index.html',

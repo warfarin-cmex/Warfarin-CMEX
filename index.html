@@ -107,6 +107,19 @@
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
       flex-shrink: 0;
     }
+    .pill-whole-sm {
+      width: 22px;
+      height: 22px;
+      border-radius: 9999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 10px;
+      color: #FFFFFF;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+      flex-shrink: 0;
+    }
     .pill-half {
       width: 20px;
       height: 36px;
@@ -123,6 +136,22 @@
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
       flex-shrink: 0;
       padding-left: 1px;
+    }
+    .pill-half-sm {
+      width: 13px;
+      height: 22px;
+      border-top-left-radius: 22px;
+      border-bottom-left-radius: 22px;
+      border-top-right-radius: 3px;
+      border-bottom-right-radius: 3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 8px;
+      color: #FFFFFF;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+      flex-shrink: 0;
     }
 
     /* Legend mini-icons */
@@ -464,7 +493,7 @@
             
             <!-- Target INR 2.0 - 3.0 -->
             <div>
-              <h3 class="text-base font-extrabold text-brand-700 mb-3">Target INR 2.0 - 3.0 (General / AF / DVT)</h3>
+              <h3 class="text-base font-extrabold text-brand-700 mb-3">Target INR 2.0 - 3.0</h3>
               <div class="divide-y divide-gray-100 text-sm sm:text-base">
                 <div class="py-2.5">
                   <div class="font-extrabold text-red-600">&lt; 1.5</div>
@@ -651,12 +680,12 @@
 
             <!-- Guideline Action Text -->
             <p id="rec-clinical-text" class="text-lg sm:text-xl font-bold text-gray-900 leading-snug mb-3">
-              หยุดยา 2 วัน แล้วเริ่มใหม่ลดขนาดลง 20% (พิจารณา Vit K1 1 - 2.5 mg หากเสี่ยงเลือดออก)
+              คงขนาดยาเดิม (Continue same dose)
             </p>
 
             <div class="flex flex-wrap items-center justify-between text-xs sm:text-sm text-gray-500 pt-2 border-t border-gray-100 gap-2">
-              <span id="rec-inr-used">INR ที่ใช้เลือกแนวทาง: 5.0</span>
-              <span id="rec-range-info" class="font-medium text-gray-400">ขนาดยาเดิม: 10 mg/wk</span>
+              <span id="rec-inr-used">INR ที่ใช้เลือกแนวทาง: 2.0</span>
+              <span id="rec-range-info" class="font-medium text-gray-400">ขนาดยาเดิม: 5 mg/wk</span>
             </div>
           </div>
 
@@ -696,14 +725,6 @@
     };
 
     const PILL_META = {
-      0: {
-        color: '#9CA3AF',
-        textColor: '#FFFFFF',
-        bgTint: '#F3F4F6',
-        borderTint: '#E5E7EB',
-        activeBorder: '#9CA3AF',
-        name: 'หยุดยา'
-      },
       2: {
         color: '#F27405',
         textColor: '#FFFFFF',
@@ -838,52 +859,42 @@
         if (inr < 1.5) {
           return {
             pctChange: 0.15,
-            minPct: 0.10,
-            maxPct: 0.20,
             badgeTag: 'Increase',
             badgeText: 'แนะนำให้ปรับเพิ่มขนาดยา',
             badgeClass: 'bg-amber-100 text-amber-800 border-amber-900/5',
-            clinicalText: 'เพิ่มขนาดยารวมต่อสัปดาห์ 10 - 20%',
+            clinicalText: 'เพิ่มขนาดยา 10-20%',
             holdOnly: false
           };
         } else if (inr <= 1.9) {
           return {
             pctChange: 0.075,
-            minPct: 0.05,
-            maxPct: 0.10,
             badgeTag: 'Increase',
             badgeText: 'แนะนำให้ปรับเพิ่มขนาดยา',
             badgeClass: 'bg-amber-100 text-amber-800 border-amber-900/5',
-            clinicalText: 'เพิ่มขนาดยารวมต่อสัปดาห์ 5 - 10%',
+            clinicalText: 'เพิ่มขนาดยา 5-10%',
             holdOnly: false
           };
         } else if (inr <= 3.0) {
           return {
             pctChange: 0,
-            minPct: 0,
-            maxPct: 0,
             badgeTag: 'Target',
-            badgeText: 'อยู่ในเกณฑ์เป้าหมาย',
+            badgeText: 'คงขนาดยาเดิม',
             badgeClass: 'bg-emerald-100 text-emerald-700 border-emerald-900/5',
-            clinicalText: 'คงขนาดยาเดิม (Target INR 2.0 - 3.0)',
+            clinicalText: 'คงขนาดยาเดิม (Continue same dose)',
             holdOnly: false
           };
         } else if (inr <= 3.9) {
           return {
             pctChange: -0.075,
-            minPct: -0.10,
-            maxPct: -0.05,
             badgeTag: 'Decrease',
             badgeText: 'แนะนำให้ปรับลดขนาดยา',
             badgeClass: 'bg-amber-100 text-amber-800 border-amber-900/5',
-            clinicalText: 'ลดขนาดยา 5 - 10% หรือติดตามผลใกล้ชิด',
+            clinicalText: 'ลดขนาดยา 5-10% หรือติดตามผลใกล้ชิด',
             holdOnly: false
           };
         } else if (inr <= 4.9) {
           return {
             pctChange: -0.10,
-            minPct: -0.15,
-            maxPct: -0.05,
             badgeTag: 'Decrease',
             badgeText: 'แนะนำให้ปรับลดขนาดยา',
             badgeClass: 'bg-amber-100 text-amber-800 border-amber-900/5',
@@ -893,8 +904,6 @@
         } else if (inr <= 8.9) {
           return {
             pctChange: -0.20,
-            minPct: -0.25,
-            maxPct: -0.15,
             badgeTag: 'Decrease',
             badgeText: 'แนะนำให้ปรับลดขนาดยา',
             badgeClass: 'bg-amber-100 text-amber-800 border-amber-900/5',
@@ -904,8 +913,6 @@
         } else {
           return {
             pctChange: -1,
-            minPct: -1,
-            maxPct: -1,
             badgeTag: 'Critical',
             badgeText: 'หยุดยาชั่วคราว (INR ≥ 9.0)',
             badgeClass: 'bg-red-100 text-red-700 border-red-900/5',
@@ -918,52 +925,42 @@
         if (inr < 1.9) {
           return {
             pctChange: 0.15,
-            minPct: 0.10,
-            maxPct: 0.20,
             badgeTag: 'Increase',
             badgeText: 'แนะนำให้ปรับเพิ่มขนาดยา',
             badgeClass: 'bg-amber-100 text-amber-800 border-amber-900/5',
-            clinicalText: 'เพิ่มขนาดยารวมต่อสัปดาห์ 10 - 20%',
+            clinicalText: 'เพิ่มขนาดยา 10-20%',
             holdOnly: false
           };
         } else if (inr <= 2.4) {
           return {
             pctChange: 0.075,
-            minPct: 0.05,
-            maxPct: 0.10,
             badgeTag: 'Increase',
             badgeText: 'แนะนำให้ปรับเพิ่มขนาดยา',
             badgeClass: 'bg-amber-100 text-amber-800 border-amber-900/5',
-            clinicalText: 'เพิ่มขนาดยารวมต่อสัปดาห์ 5 - 10%',
+            clinicalText: 'เพิ่มขนาดยา 5-10%',
             holdOnly: false
           };
         } else if (inr <= 3.5) {
           return {
             pctChange: 0,
-            minPct: 0,
-            maxPct: 0,
             badgeTag: 'Target',
-            badgeText: 'อยู่ในเกณฑ์เป้าหมาย',
+            badgeText: 'คงขนาดยาเดิม',
             badgeClass: 'bg-emerald-100 text-emerald-700 border-emerald-900/5',
-            clinicalText: 'คงขนาดยาเดิม (Target INR 2.5 - 3.5)',
+            clinicalText: 'คงขนาดยาเดิม (Continue same dose)',
             holdOnly: false
           };
         } else if (inr <= 4.5) {
           return {
             pctChange: -0.075,
-            minPct: -0.10,
-            maxPct: -0.05,
             badgeTag: 'Decrease',
             badgeText: 'แนะนำให้ปรับลดขนาดยา',
             badgeClass: 'bg-amber-100 text-amber-800 border-amber-900/5',
-            clinicalText: 'ลดขนาดยา 5 - 10% หรือติดตามผลใกล้ชิด',
+            clinicalText: 'ลดขนาดยา 5-10% หรือติดตามผลใกล้ชิด',
             holdOnly: false
           };
         } else if (inr <= 5.9) {
           return {
             pctChange: -0.10,
-            minPct: -0.15,
-            maxPct: -0.05,
             badgeTag: 'Decrease',
             badgeText: 'แนะนำให้ปรับลดขนาดยา',
             badgeClass: 'bg-amber-100 text-amber-800 border-amber-900/5',
@@ -973,8 +970,6 @@
         } else if (inr <= 8.9) {
           return {
             pctChange: -0.20,
-            minPct: -0.25,
-            maxPct: -0.15,
             badgeTag: 'Decrease',
             badgeText: 'แนะนำให้ปรับลดขนาดยา',
             badgeClass: 'bg-amber-100 text-amber-800 border-amber-900/5',
@@ -984,8 +979,6 @@
         } else {
           return {
             pctChange: -1,
-            minPct: -1,
-            maxPct: -1,
             badgeTag: 'Critical',
             badgeText: 'หยุดยาชั่วคราว (INR ≥ 9.0)',
             badgeClass: 'bg-red-100 text-red-700 border-red-900/5',
@@ -996,94 +989,100 @@
       }
     }
 
-    // --- WEEKLY SCHEDULE GENERATOR ---
+    // --- DAILY DOSE POOL (Exact Match with WARFARIN AUTO) ---
+    // Every day of the 7-day schedule takes a positive tablet dose (never 0 mg / stop day)
     function generateDailyDoseUnits(selectedPills, targetWeeklyDose) {
-      const units = [];
-      const avgDaily = targetWeeklyDose / 7;
+      const rawUnits = [];
+      const maxPill = Math.max(...selectedPills);
+      const maxSinglePillWeekly = maxPill * 7;
 
       selectedPills.forEach(pill => {
-        units.push({
-          dose: pill / 2,
+        // Half tablet (0.5 เม็ด): e.g., 2/2 mg = 1 mg, 3/2 mg = 1.5 mg
+        rawUnits.push({
+          dose: +(pill * 0.5).toFixed(2),
           pill: pill,
           count: 0.5,
           isHalf: true,
           legendText: `${pill}/2 mg`,
           shortInside: '1/2',
-          simplicityPenalty: 1
+          simplicityPenalty: 1.0
         });
 
-        units.push({
+        // Whole tablet (1 เม็ด): e.g., 2 mg, 3 mg, 4 mg, 5 mg
+        rawUnits.push({
           dose: pill,
           pill: pill,
           count: 1,
           isHalf: false,
           legendText: `${pill} mg`,
           shortInside: `${pill}`,
-          simplicityPenalty: 0
+          simplicityPenalty: 0.0
         });
 
-        if (avgDaily > pill * 0.85) {
-          units.push({
-            dose: pill * 1.5,
+        // Multi-tablet options ONLY when targetWeeklyDose exceeds what 1 tablet/day can provide
+        if (targetWeeklyDose > maxSinglePillWeekly - 1) {
+          rawUnits.push({
+            dose: +(pill * 1.5).toFixed(2),
             pill: pill,
             count: 1.5,
             isHalf: true,
-            legendText: `${pill} mg × 1.5`,
-            shortInside: `1½`,
-            simplicityPenalty: 4
+            legendText: `${pill}×1.5 mg`,
+            shortInside: `${pill}+½`,
+            simplicityPenalty: 3.5
           });
-          units.push({
+          rawUnits.push({
             dose: pill * 2,
             pill: pill,
             count: 2,
             isHalf: false,
-            legendText: `${pill} mg × 2`,
+            legendText: `${pill}×2 mg`,
             shortInside: `${pill}×2`,
-            simplicityPenalty: 3
+            simplicityPenalty: 2.2
           });
         }
-        if (avgDaily > pill * 1.8) {
-          units.push({
+        if (targetWeeklyDose > maxSinglePillWeekly * 1.8) {
+          rawUnits.push({
             dose: pill * 3,
             pill: pill,
             count: 3,
             isHalf: false,
-            legendText: `${pill} mg × 3`,
+            legendText: `${pill}×3 mg`,
             shortInside: `${pill}×3`,
-            simplicityPenalty: 5
+            simplicityPenalty: 4.5
           });
         }
       });
 
-      if (avgDaily < 2.0) {
-        units.push({
-          dose: 0,
-          pill: 0,
-          count: 0,
-          isHalf: false,
-          legendText: 'หยุดยา',
-          shortInside: '-',
-          simplicityPenalty: 6
-        });
-      }
-
-      return units;
+      // If a whole tablet exists for the same mg (e.g. 3 mg whole vs 1.5x of 2 mg), prefer the single whole tablet
+      return rawUnits.filter(u => {
+        if (u.count === 1) return true;
+        const hasWholeEquivalent = rawUnits.some(
+          other => other.count === 1 && Math.abs(other.dose - u.dose) < 0.01
+        );
+        return !hasWholeEquivalent;
+      });
     }
 
+    // --- GENERATE TOP 3 SCHEDULES (Matches Reference Screenshots 100%) ---
     function generateTop3Schedules(targetWeeklyDose, currentWeeklyDose, selectedPills) {
       const units = generateDailyDoseUnits(selectedPills, targetWeeklyDose);
 
+      // The 4 exact patterns from WARFARIN AUTO:
+      // 1. ทุกวัน (7 days)
+      // 2. จันทร์-เสาร์ / อาทิตย์ (6 + 1)
+      // 3. จันทร์-ศุกร์ / เสาร์-อาทิตย์ (5 + 2)
+      // 4. จันทร์-พฤหัส / ศุกร์-อาทิตย์ (4 + 3)
       const patterns = [
-        { n1: 7, n2: 0, title: 'ทุกวัน (จันทร์-อาทิตย์)', patternPenalty: 0 },
-        { n1: 6, n2: 1, title: 'จันทร์-เสาร์ / อาทิตย์', patternPenalty: 2 },
-        { n1: 5, n2: 2, title: 'จันทร์-ศุกร์ / เสาร์-อาทิตย์', patternPenalty: 3 },
-        { n1: 4, n2: 3, title: 'จันทร์-พฤหัส / ศุกร์-อาทิตย์', patternPenalty: 4 }
+        { n1: 7, n2: 0, title: 'ทุกวัน', patternPenalty: 0 },
+        { n1: 6, n2: 1, title: 'จันทร์-เสาร์ / อาทิตย์', patternPenalty: 2.0 },
+        { n1: 5, n2: 2, title: 'จันทร์-ศุกร์ / เสาร์-อาทิตย์', patternPenalty: 3.0 },
+        { n1: 4, n2: 3, title: 'จันทร์-พฤหัส / ศุกร์-อาทิตย์', patternPenalty: 4.0 }
       ];
 
       const candidates = [];
 
+      // 1. Uniform 7-day schedules ("ทุกวัน")
       units.forEach(u1 => {
-        if (u1.dose <= 0) return;
         const total = +(u1.dose * 7).toFixed(2);
         const diff = Math.abs(total - targetWeeklyDose);
         candidates.push({
@@ -1098,6 +1097,7 @@
         });
       });
 
+      // 2. Two-tier schedules (6+1, 5+2, 4+3)
       for (let pIdx = 1; pIdx < patterns.length; pIdx++) {
         const pat = patterns[pIdx];
         for (let i = 0; i < units.length; i++) {
@@ -1105,21 +1105,26 @@
             const u1 = units[i];
             const u2 = units[j];
 
-            if (u1.dose <= 0) continue;
             if (Math.abs(u1.dose - u2.dose) < 0.01) continue;
 
-            const total = +(pat.n1 * u1.dose + pat.n2 * u2.dose).toFixed(2);
-            if (total <= 0) continue;
+            // Keep daily doses within reasonable step (<= 2x)
+            const maxD = Math.max(u1.dose, u2.dose);
+            const minD = Math.min(u1.dose, u2.dose);
+            if (maxD / minD > 2.05) continue;
 
+            const total = +(pat.n1 * u1.dose + pat.n2 * u2.dose).toFixed(2);
             const diff = Math.abs(total - targetWeeklyDose);
-            const differentPillColorPenalty = (u2.pill !== 0 && u1.pill !== u2.pill) ? 2.5 : 0;
-            const orderPenalty = (u1.dose > u2.dose && u2.dose > 0) ? 0.4 : 0;
+
+            const differentPillColorPenalty = (u1.pill !== u2.pill) ? 2.5 : 0;
+            const dailyJumpPenalty = Math.abs(u1.dose - u2.dose) * 1.5;
+            const orderPenalty = (u1.dose > u2.dose) ? 0.4 : 0;
 
             const simplicity =
               pat.patternPenalty +
               u1.simplicityPenalty +
               u2.simplicityPenalty +
               differentPillColorPenalty +
+              dailyJumpPenalty +
               orderPenalty;
 
             candidates.push({
@@ -1136,6 +1141,7 @@
         }
       }
 
+      // Group by distinct weekly dose total (picking the simplest regimen for each total)
       const bestByTotal = new Map();
       candidates.forEach(cand => {
         const key = cand.total.toFixed(1);
@@ -1144,6 +1150,7 @@
         }
       });
 
+      // Sort by closeness to targetWeeklyDose, then lower total first on ties
       const distinctList = Array.from(bestByTotal.values()).sort((a, b) => {
         if (Math.abs(a.diff - b.diff) > 0.01) return a.diff - b.diff;
         if (Math.abs(a.total - b.total) > 0.01) return a.total - b.total;
@@ -1192,7 +1199,7 @@
       const doseVal = parseFloat(document.getElementById('input-weekly-dose').value);
 
       if (isNaN(inrVal) || inrVal <= 0) {
-        validationErrorText.textContent = 'กรุณากรอกค่า INR ปัจจุบันให้ถูกต้อง (เช่น 2.5 หรือ 5.0)';
+        validationErrorText.textContent = 'กรุณากรอกค่า INR ปัจจุบันให้ถูกต้อง (เช่น 2.0 หรือ 5.0)';
         validationError.classList.remove('hidden');
         document.getElementById('input-inr').focus();
         return;
@@ -1258,14 +1265,12 @@
         const pctSign = opt.pctFromOld > 0 ? '+' : '';
         const pctFormatted = `${pctSign}${opt.pctFromOld.toFixed(1)}%`;
         const pctColorClass =
-          Math.abs(opt.pctFromOld) < 0.1
-            ? 'text-emerald-600'
-            : opt.pctFromOld < 0
-            ? 'text-amber-500'
-            : 'text-blue-600';
+          opt.pctFromOld >= 0
+            ? 'text-emerald-500'
+            : 'text-amber-500';
 
         const daysHtml = opt.days.map((dayUnit, dIdx) => {
-          const meta = PILL_META[dayUnit.pill] || PILL_META[0];
+          const meta = PILL_META[dayUnit.pill];
           const pillGraphicHtml = renderPillGraphic(dayUnit, meta);
 
           return `
@@ -1291,7 +1296,7 @@
 
         let secondaryLegendHtml = '';
         if (opt.u2) {
-          const secMeta = PILL_META[opt.u2.pill] || PILL_META[0];
+          const secMeta = PILL_META[opt.u2.pill];
           const secLegendIcon = opt.u2.isHalf
             ? `<span class="legend-half" style="background-color: ${secMeta.color};"></span>`
             : `<span class="legend-whole" style="background-color: ${secMeta.color};"></span>`;
@@ -1308,7 +1313,7 @@
         card.className = `bg-white rounded-3xl p-5 shadow-sm border-2 transition cursor-pointer ${
           idx === 0 ? 'border-brand-600/80 ring-2 ring-emerald-100' : 'border-emerald-100 hover:border-emerald-300'
         }`;
-        card.onclick = () => selectOptionCard(idx, opt);
+        card.onclick = () => selectOptionCard(idx);
         card.id = `option-card-${idx}`;
 
         card.innerHTML = `
@@ -1363,13 +1368,34 @@
     }
 
     function renderPillGraphic(dayUnit, meta) {
-      if (dayUnit.dose === 0) {
-        return `<span class="text-xs font-bold text-gray-400">หยุด</span>`;
-      }
-      if (dayUnit.isHalf && dayUnit.count === 0.5) {
+      if (dayUnit.count === 0.5) {
         return `
           <div class="pill-half" style="background-color: ${meta.color}; color: ${meta.textColor};">
             1/2
+          </div>
+        `;
+      }
+      if (dayUnit.count === 1.5) {
+        return `
+          <div class="flex items-center justify-center gap-0.5">
+            <div class="pill-whole-sm" style="background-color: ${meta.color}; color: ${meta.textColor};">
+              ${dayUnit.pill}
+            </div>
+            <div class="pill-half-sm" style="background-color: ${meta.color}; color: ${meta.textColor};">
+              ½
+            </div>
+          </div>
+        `;
+      }
+      if (dayUnit.count === 2) {
+        return `
+          <div class="flex items-center justify-center -space-x-1.5">
+            <div class="pill-whole-sm ring-1 ring-white" style="background-color: ${meta.color}; color: ${meta.textColor};">
+              ${dayUnit.pill}
+            </div>
+            <div class="pill-whole-sm ring-1 ring-white" style="background-color: ${meta.color}; color: ${meta.textColor};">
+              ${dayUnit.pill}
+            </div>
           </div>
         `;
       }
@@ -1402,10 +1428,10 @@
       const clinicalText = document.getElementById('rec-clinical-text').textContent;
       let scheduleLine = `• รูปแบบ (${opt.patternTitle}): ขนาดยารวม ${formatNumber(opt.totalWeekly)} mg/สัปดาห์`;
       if (opt.u2) {
-        scheduleLine += `\n  - ขนาดยาหลัก: เม็ด ${opt.u1.pill} mg (${opt.u1.count === 0.5 ? 'ครึ่งเม็ด' : opt.u1.count + ' เม็ด'} = ${opt.u1.dose} mg/วัน)`;
-        scheduleLine += `\n  - ขนาดยารอง: ${opt.u2.dose === 0 ? 'หยุดยา' : `เม็ด ${opt.u2.pill} mg (${opt.u2.count === 0.5 ? 'ครึ่งเม็ด' : opt.u2.count + ' เม็ด'} = ${opt.u2.dose} mg/วัน)`}`;
+        scheduleLine += `\n  - หลัก: ${opt.u1.legendText} (${opt.u1.dose} mg/วัน)`;
+        scheduleLine += `\n  - รอง: ${opt.u2.legendText} (${opt.u2.dose} mg/วัน)`;
       } else {
-        scheduleLine += `\n  - กินทุกวัน: เม็ด ${opt.u1.pill} mg (${opt.u1.count === 0.5 ? 'ครึ่งเม็ด' : opt.u1.count + ' เม็ด'} = ${opt.u1.dose} mg/วัน)`;
+        scheduleLine += `\n  - หลัก: ${opt.u1.legendText} (${opt.u1.dose} mg/วัน)`;
       }
 
       const textToCopy = `Warfarin CMEX (Target INR ${state.targetINR})\nINR ปัจจุบัน: ${inrVal}\nคำแนะนำ: ${clinicalText}\n${scheduleLine}`;
